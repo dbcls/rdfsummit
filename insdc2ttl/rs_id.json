@@ -6,37 +6,37 @@
   "RefSeq": {
     "label": "NCBI RefSeq",  // custom
     "class": "RefSeq",
-    "prefix": "http://identifiers.org/refseq/"
+    "prefix": "http://identifiers.org/refseq"
   },
   "BioProject": {
     "label": "NCBI BioProject",  // custom
     "class": "BioProject",
-    "prefix": "http://identifiers.org/bioproject/"
+    "prefix": "http://identifiers.org/bioproject"
   },
   "PubMed": {
     "label": "NCBI PubMed",  // custom
     "class": "PubMed",
-    "prefix": "http://identifiers.org/pubmed/"
+    "prefix": "http://identifiers.org/pubmed"
   },
   "GeneID": {
     "label": "NCBI Gene",
     "class": "Gene",
-    "prefix": "http://identifiers.org/ncbigene/"
+    "prefix": "http://identifiers.org/ncbigene"
   },
   "Protein": {
     "label": "NCBI Protein",
     "class": "Protein",
-    "prefix": "http://identifiers.org/ncbiprotein/"
+    "prefix": "http://identifiers.org/ncbiprotein"
   },
   "taxon": {
     "label": "NCBI Taxonomy",  // custom
     "class": "Taxonomy",
-    "prefix": "http://identifiers.org/taxonomy/"
+    "prefix": "http://identifiers.org/taxonomy"
   },
   "UniSTS": {
     "label": "UniSTS",
     "class": "UniSTS",
-    "prefix": "http://identifiers.org/unists/"
+    "prefix": "http://identifiers.org/unists"
   },
 
   /*
@@ -46,27 +46,27 @@
   "CCDS": {
     "label": "Consensus CDS",
     "class": "CCDS",
-    "prefix": "http://identifiers.org/ccds/"
+    "prefix": "http://identifiers.org/ccds"
   },
   "HGNC": {
     "label": "HUGO Gene Nomenclature Committee",
     "class": "HGNC",
-    "prefix": "http://identifiers.org/hgnc/"
+    "prefix": "http://identifiers.org/hgnc"
   },
   "HPRD": {
     "label": "Human Protein Reference Database",
     "class": "HPRD",
-    "prefix": "http://identifiers.org/hprd/"
+    "prefix": "http://identifiers.org/hprd"
   },
   "MIM": {
     "label": "Online Mendelian Inheritance in Man",
     "class": "OMIM",
-    "prefix": "http://identifiers.org/omim/"
+    "prefix": "http://identifiers.org/omim"
   },
   "miRBase": {
     "label": "miRBase Sequence Database",
     "class": "miRBase",
-    "prefix": "http://identifiers.org/mirbase/"
+    "prefix": "http://identifiers.org/mirbase"
   },
 
   /*
@@ -76,87 +76,87 @@
   "ASAP": {
     "label": "A Systematic Annotation Package",  // definition
     "class": "ASAP",
-    "prefix": "http://identifiers.org/asap/"
+    "prefix": "http://identifiers.org/asap"
   },
   "ATCC": {
     "label": "American Type Culture Collection",  // synonym
     "class": "ATCC",
-    "prefix": "http://identifiers.org/atcc/"
+    "prefix": "http://identifiers.org/atcc"
   },
   "CDD": {
     "label": "Conserved Domain Database",
     "class": "CDD",
-    "prefix": "http://identifiers.org/cdd/"
+    "prefix": "http://identifiers.org/cdd"
   },
   "EcoGene": {
     "label": "EcoGene",
     "class": "EcoGene",
-    "prefix": "http://identifiers.org/ecogene/"
+    "prefix": "http://identifiers.org/ecogene"
   },
   "GO": {
     "label": "Gene Ontology",
     "class": "GO",
-    "prefix": "http://identifiers.org/obo.go/"
+    "prefix": "http://identifiers.org/obo.go"
   },
   "GOA": {
     "label": "Gene Ontology Annotation",  // synonym
     "class": "GOA",
-    "prefix": "http://identifiers.org/goa/"
+    "prefix": "http://identifiers.org/goa"
   },
   "Greengenes": {
     "label": "GreenGenes",
     "class": "Greengenes",
-    "prefix": "http://identifiers.org/greengenes/"
+    "prefix": "http://identifiers.org/greengenes"
   },
   "HSSP": {
     "label": "Homology-derived Structure of Proteins",
     "class": "HSSP",
-    "prefix": "http://identifiers.org/hssp/"
+    "prefix": "http://identifiers.org/hssp"
   },
   "ISFinder": {
     "label": "ISFinder",
     "class": "ISFinder",
-    "prefix": "http://identifiers.org/isfinder/"
+    "prefix": "http://identifiers.org/isfinder"
   },
   "InterPro": {
     "label": "InterPro",
     "class": "InterPro",
-    "prefix": "http://identifiers.org/interpro/"
+    "prefix": "http://identifiers.org/interpro"
   },
   "NBRC": {
     "label": "NITE Biological Research Center Catalogue",
     "class": "NBRC",
-    "prefix": "http://identifiers.org/nbrc/"
+    "prefix": "http://identifiers.org/nbrc"
   },
   "PDB": {
     "label": "Protein Data Bank",
     "class": "PDB",
-    "prefix": "http://identifiers.org/pdb/"
+    "prefix": "http://identifiers.org/pdb"
   },
   "PFAM": {
     "label": "Protein Family Database",  // synonym
     "class": "Pfam",
-    "prefix": "http://identifiers.org/pfam/"
+    "prefix": "http://identifiers.org/pfam"
   },
   "REBASE": {
     "label": "Restriction Enzyme Database",  // synonym
     "class": "REBASE",
-    "prefix": "http://identifiers.org/rebase/"
+    "prefix": "http://identifiers.org/rebase"
   },
   "TIGRFAM": {
     "label": "TIGRFAMS",
     "class": "TIGRFAM",
-    "prefix": "http://identifiers.org/tigrfam/"
+    "prefix": "http://identifiers.org/tigrfam"
   },
   "UniProtKB/Swiss-Prot": {
     "label": "UniProt/SwissProt",
     "class": "UniProt",
-    "prefix": "http://identifiers.org/uniprot/"
+    "prefix": "http://identifiers.org/uniprot"
   },
   "UniProtKB/TrEMBL": {
     "label": "UniProt/TrEMBL",
     "class": "UniProt",
-    "prefix": "http://identifiers.org/uniprot/"
+    "prefix": "http://identifiers.org/uniprot"
   },
 
   /*
@@ -167,14 +167,14 @@
   "HOMD": {
     "label": "Human Oral Microbiome Database Taxonomy",  // custom
     "class": "HomdTaxon",
-    "prefix": "http://identifiers.org/homd.taxon/"
+    "prefix": "http://identifiers.org/homd.taxon"
   },
 
   // add "ECOCYC:" prefix to ID
   "ECOCYC": {
     "label": "BioCyc/EcoCyc",
     "class": "EcoCyc",
-    "prefix": "http://identifiers.org/biocyc/ECOCYC:"
+    "prefix": "http://identifiers.org/biocyc/ECOCYC"
   },
 
   /*
@@ -185,13 +185,13 @@
   "ERIC": {
     "label": "Euteropathogen Resource Integration Center",  // custom
     "class": "ERIC",
-    "prefix": "http://identifiers.org/eric/"
+    "prefix": "http://identifiers.org/eric"
   },
 
   "GI": {
     "label": "NCBI GenInfo Identifier",  // custom
     "class": "GI",
-    "prefix": "http://identifiers.org/ncbigi/"
+    "prefix": "http://identifiers.org/ncbigi"
   },
 
   // http://www.hmpdacc.org/
@@ -199,20 +199,20 @@
   "HMP": {
     "label": "Human Microbiome Project",  // custom
     "class": "HMP",
-    "prefix": "http://identifiers.org/hmp/"
+    "prefix": "http://identifiers.org/hmp"
   },
 
   "PSEUDO": {
     "label": "EMBL pseudo protein identifier",  // custom
     "class": "PSEUDO",
-    "prefix": "http://identifiers.org/pseudo/"
+    "prefix": "http://identifiers.org/pseudo"
   },
 
   // http://pathema.jcvi.org/
   "Pathema": {
     "label": "Pathema Genome Resource",  // custom
     "class": "Pathema",
-    "prefix": "http://identifiers.org/pathema/"
+    "prefix": "http://identifiers.org/pathema"
   },
 
   // http://www.pseudomonas.com/
@@ -220,7 +220,7 @@
   "PseudoCap": {
     "label": "Pseudomonas Genome Database",  // custom
     "class": "PseudoCap",
-    "prefix": "http://identifiers.org/pseudocap/"
+    "prefix": "http://identifiers.org/pseudocap"
   }
 }
 
