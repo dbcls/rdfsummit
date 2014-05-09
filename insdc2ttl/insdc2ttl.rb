@@ -65,7 +65,7 @@ module RDFSupport
 end
 
 ###
-### Mapping RefSeq db_xref to Identifiers.org
+### Mapping INSDC or RefSeq db_xref to Identifiers.org
 ###
 
 # https://gist.github.com/3985701
@@ -74,7 +74,7 @@ class RS_ID
   include RDFSupport
 
   def initialize
-    @rs_id = JSON.parse(File.read(File.dirname(__FILE__) + "/refseq2ttl/rs_id.json"))
+    @rs_id = JSON.parse(File.read(File.dirname(__FILE__) + "/rs_id.json"))
   end
 
   def fetch(db)
@@ -89,13 +89,13 @@ class RS_ID
 end
 
 ###
-### Mapping RefSeq feature table to Sequence Ontology
+### Mapping INSDC or RefSeq feature table to Sequence Ontology
 ###
 
 # https://gist.github.com/3650401
 class FT_SO
   def initialize
-    @data = JSON.parse(File.read(File.dirname(__FILE__) + "/refseq2ttl/ft_so.json"))
+    @data = JSON.parse(File.read(File.dirname(__FILE__) + "/ft_so.json"))
     @data["ncRNA"] = {
       "so_id" => "SO:0000655",
       "so_term" => "ncRNA",
@@ -132,10 +132,10 @@ class FT_SO
 end
 
 ###
-### Convert RefSeq (prokaryote) entries to RDF
+### Convert INSDC or RefSeq entries to RDF
 ###
 
-class RefSeq2RDF
+class INSDC2RDF
 
   include RDFSupport
 
@@ -153,7 +153,7 @@ class RefSeq2RDF
     puts prefix
     puts
 
-    parse_refseq(io) if io
+    parse_entry(io) if io
   end
 
   attr_accessor :prefix
@@ -266,8 +266,8 @@ class RefSeq2RDF
   ### Main
   ###
 
-  def parse_refseq(io)
-    # Read RefSeq entry
+  def parse_entry(io)
+    # Read INSDC or RefSeq entry
     Bio::FlatFile.auto(io).each do |entry|
       @entry = entry
       @features = entry.features
@@ -377,8 +377,11 @@ class RefSeq2RDF
     xref(@sequence_id, 'GI', str)
   end
 
-  def sequence_link_accver(str)
-    xref(@sequence_id, 'RefSeq', str)
+  def sequence_link_accver(str, source_db = 'RefSeq')
+    # [TODO] distinguish RefSeq/GenBank/DDBJ entries by the prefix of accession IDs
+    # [TODO] register GenBank/DDBJ in rs_id.json to enable the above
+    # [TODO] rewrite parse_entry and subsequent methods to use Bio::Sequence for EMBL support
+    xref(@sequence_id, source_db, str)
   end
 
   def sequence_link_bioproject(str)
@@ -639,9 +642,9 @@ if __FILE__ == $0
   end
 
   if opts[:prefixes]
-    RefSeq2RDF.new
+    INSDC2RDF.new
   else
-    RefSeq2RDF.new(ARGF, opts[:seqtype])
+    INSDC2RDF.new(ARGF, opts[:seqtype])
   end
 end
 
