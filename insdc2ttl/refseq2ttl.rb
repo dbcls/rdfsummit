@@ -13,8 +13,16 @@ module Bio
       fetch('DBLINK')
     end
 
+    def project
+      dblink[/Project: (\d+)/, 1]
+    end
+
     def bioproject
-      dblink[/\d+/]
+      dblink[/BioProject: (\S+)/, 1]
+    end
+
+    def biosample
+      dblink[/BioSample: (\S+)/, 1]
     end
   end
 end
@@ -88,6 +96,12 @@ end
 class FT_SO
   def initialize
     @data = JSON.parse(File.read(File.dirname(__FILE__) + "/refseq2ttl/ft_so.json"))
+    @data["ncRNA"] = {
+      "so_id" => "SO:0000655",
+      "so_term" => "ncRNA",
+      "ft_desc" => "noncoding RNA",
+      "so_desc" => "An RNA transcript that does not encode for a protein rather the RNA molecule is the gene product."
+    }
   end
 
   # ftso = FT_SO.new
@@ -132,8 +146,9 @@ class RefSeq2RDF
     @rs_id = RS_ID.new
     @ft_so = FT_SO.new
 
-    @locus = {}
+    @gene = {}
     @xref_warn = {}
+    @feature_count = Hash.new(0)
 
     puts prefix
     puts
@@ -150,8 +165,8 @@ class RefSeq2RDF
   def set_prefixes
     @prefix = default_prefix + [
       #triple("@prefix", "genome:", "<http://purl.jp/bio/10/genome/>"),
-      triple("@prefix", "idorg:", "<http://rdf.identifiers.org/database/>"),
-      triple("@prefix", "insdc:", "<http://insdc.org/owl/>"),
+      #triple("@prefix", "insdc:", "<http://insdc.org/owl/>"),
+      triple("@prefix", "insdc:", "<http://ddbj.nig.ac.jp/ontologies/sequence#>"),
     ]
   end
 
@@ -172,7 +187,8 @@ class RefSeq2RDF
       uri = "<#{hash['prefix']}#{id}>"
       puts triple(subject, "rdfs:seeAlso", uri)
       puts triple(uri, "rdfs:label", quote("#{db}:#{id}"))
-      puts triple(uri, "rdf:type", "idorg:#{hash['class']}")
+      #puts triple(uri, "rdf:type", "idorg:#{hash['class']}")
+      puts triple(uri, "rdf:type", "<#{hash['prefix']}>")
     else
       unless @xref_warn[db]
         $stderr.puts "Error: New database '#{db}' found. Add it to the rs_id.json file and/or Identifiers.org."
@@ -185,7 +201,7 @@ class RefSeq2RDF
   ### FALDO http://biohackathon.org/faldo
   ###
 
-  def new_location(pos, elem_type = false)
+  def new_location(pos, subpart_type = false)
     loc_id = new_uuid
 
     puts triple(loc_id, "insdc:location", quote(pos))
@@ -196,24 +212,25 @@ class RefSeq2RDF
     puts triple(loc_id, "rdf:type", "faldo:Region")
     puts triple(loc_id, "faldo:begin", pos_start)
     puts triple(loc_id, "faldo:end", pos_end)
-    # [TODO] need to check join(100000..1000289,1..1234) type object located over the origin
-    new_position(pos_start, @locations.range.min, @locations.first.strand)
-    new_position(pos_end, @locations.range.max, @locations.last.strand)
+    # [TODO] Note that positions of an object located over the origin can be faldo:begin > faldo:end
+    # e.g., join(800..900,1000..1024,1..234) will be faldo:start 800 and faldo:end 234
+    new_position(pos_start, @locations.first.from, @locations.first.strand)
+    new_position(pos_end, @locations.last.to, @locations.last.strand)
 
     list = []
-    if elem_type
+    if subpart_type
       @locations.each do |loc|
-        elem_id = new_uuid
-        elem_start = new_uuid
-        elem_end = new_uuid
-        puts triple(elem_id, "obo:so_part_of", loc_id)
-        puts triple(elem_id, "rdf:type", elem_type[:id]) + "  # #{elem_type[:term]}"
-        puts triple(elem_id, "rdf:type", "faldo:Region")
-        puts triple(elem_id, "faldo:begin", elem_start)
-        puts triple(elem_id, "faldo:end", elem_end)
-        new_position(elem_start, loc.from, loc.strand)
-        new_position(elem_end, loc.to, loc.strand)
-        list << elem_id
+        subpart_id = new_uuid
+        subpart_start = new_uuid
+        subpart_end = new_uuid
+        puts triple(subpart_id, "obo:so_part_of", loc_id)
+        puts triple(subpart_id, "rdf:type", subpart_type[:id]) + "  # #{subpart_type[:term]}"
+        puts triple(subpart_id, "rdf:type", "faldo:Region")
+        puts triple(subpart_id, "faldo:begin", subpart_start)
+        puts triple(subpart_id, "faldo:end", subpart_end)
+        new_position(subpart_start, loc.from, loc.strand)
+        new_position(subpart_end, loc.to, loc.strand)
+        list << subpart_id
       end
     end
 
@@ -244,7 +261,6 @@ class RefSeq2RDF
       parse_sequence
       parse_source
       parse_genes
-      parse_cds
       parse_features
     end
   end
@@ -273,7 +289,14 @@ class RefSeq2RDF
     # [TODO] rdfs:seeAlso (like UniProt) or dc:relation, owl:sameAs
     sequence_link_gi(@entry.gi.sub('GI:',''))
     sequence_link_accver(@entry.acc_version)
-    sequence_link_bioproject(@entry.bioproject)
+    if bioproject = @entry.bioproject
+      sequence_link_bioproject(bioproject)
+    elsif project = @entry.project
+      sequence_link_bioproject("PRJNA#{project}")
+    end
+    if biosample = @entry.biosample
+      sequence_link_biosample(biosample)
+    end
     # [TODO] how to deal with direct submissions (references without PMID)?
     sequence_ref(@entry.references)
   end
@@ -316,7 +339,7 @@ class RefSeq2RDF
 
   def sequence_seq(str)
     # [TODO] Where to privide the actual DNA sequence?
-    fasta_uri = "<http://togows.dbcls.jp/entry/nucleotide/#{str}.fasta>"
+    fasta_uri = "<http://togows.org/entry/nucleotide/#{str}.fasta>"
     #fasta_uri = "<http://www.ncbi.nlm.nih.gov/nuccore/#{str}?report=fasta>"
     puts triple(@sequence_id, "insdc:sequence_fasta", fasta_uri)
   end
@@ -343,7 +366,11 @@ class RefSeq2RDF
   end
 
   def sequence_link_bioproject(str)
-    xref(@sequence_id, 'BioProject', str)
+    xref(@sequence_id, 'BioProject', "#{str}")
+  end
+
+  def sequence_link_biosample(str)
+    xref(@sequence_id, 'BioSample', "#{str}")
   end
 
   def sequence_ref(refs)
@@ -386,13 +413,13 @@ class RefSeq2RDF
     hash.each do |qual, vals|
       vals.each do |val|
         if val == true
-          puts triple(@source_id, "insdc:source_#{qual}", true)
+          puts triple(@source_id, "insdc:#{qual}", true)
         else        
           data = val.to_s.gsub(/\s+/, ' ').strip
           if data[/^\d+$/]
-            puts triple(@source_id, "insdc:source_#{qual}", data)
+            puts triple(@source_id, "insdc:#{qual}", data)
           else
-            puts triple(@source_id, "insdc:source_#{qual}", quote(data))
+            puts triple(@source_id, "insdc:#{qual}", quote(data))
           end
         end
       end
@@ -400,13 +427,12 @@ class RefSeq2RDF
   end
 
   ###
-  ### genes
+  ### Genes
   ###
 
   def parse_genes
     genes = @features.select {|x| x.feature == "gene"}
   
-    count = 1
     genes.each do |gene|
       gene_id = new_uuid
       hash = gene.to_hash
@@ -419,100 +445,95 @@ class RefSeq2RDF
 
       if hash["locus_tag"]
         locus_tag = hash["locus_tag"].first
-        @locus[locus_tag] = gene_id
+        @gene[locus_tag] = gene_id
         puts triple(gene_id, "rdfs:label", quote(locus_tag))
       elsif hash["gene"]
-        puts triple(gene_id, "rdfs:label", quote(hash["gene"].first))
+        gene = hash["gene"].first
+        @gene[gene] = gene_id
+        puts triple(gene_id, "rdfs:label", quote(gene))
       else
         # [TODO] Where else to find gene name?
-        puts triple(gene_id, "rdfs:label", quote("gene#{count}"))
       end
-      count += 1
-
       parse_qualifiers(gene_id, hash)
     end
   end
 
   ###
-  ### CDS
-  ###
-
-  def parse_cds
-    cdss = @features.select {|x| x.feature == "CDS"}
-
-    count = 1
-    cdss.each do |cds|
-      cds_id = new_uuid
-      hash = cds.to_hash
-
-      puts triple(cds_id, "rdf:type", "obo:SO_0000316") + "  # SO:CDS"
-
-      if hash["locus_tag"]
-        if locus_tag = hash["locus_tag"].first
-          gene_id = @locus[locus_tag]
-        end
-      end
-
-      if gene_id
-        puts triple(cds_id, "obo:so_part_of", gene_id)
-      else
-        # [TODO] sure to do this?
-        puts triple(cds_id, "obo:so_part_of", @sequence_id)
-      end
-
-      if locus_tag
-        puts triple(cds_id, "rdfs:label", quote(locus_tag))
-      elsif hash["gene"]
-        puts triple(cds_id, "rdfs:label", quote(hash["gene"].first))
-      else
-        puts triple(cds_id, "rdfs:label", quote("CDS#{count}"))
-      end
-      count += 1
-      elem_type = { :id => "obo:SO_0000147", :term => "SO:exon" }
-      loc_id, exons = new_location(cds.position, elem_type)
-      puts triple(cds_id, "faldo:location", loc_id)
-      puts triple(cds_id, "obo:so_has_part", "(#{exons.join(' ')})")  # rdf:List
-
-      parse_qualifiers(cds_id, hash)
-    end
-  end
-
-  ###
-  ### Features
+  ### Features (part of gene: CDS, mRNA, misc_RNA, precursor_RNA, ncRNA, tRNA, rRNA)
   ###
 
   def parse_features
-    features = @features.select {|x| ! x.feature[/^(gene|CDS)$/]}
+    features = @features.select {|x| x.feature != "gene" }
 
     features.each do |feat|
-      feature = feat.feature
       feature_id = new_uuid
       hash = feat.to_hash
 
-      puts triple(feature_id, "obo:so_part_of", @sequence_id)
-      puts triple(feature_id, "rdfs:label", quote(feature))
+      feature = feat.feature
+      @feature_count[feature] += 1
 
-      if so_id = @ft_so.so_id(feature)
-        if so_id != "undefined"
-          so = so_id.sub(':', '_')
-          puts triple(feature_id, "rdf:type", "obo:#{so}") + "  # SO:#{@ft_so.so_term(feature)}"
-        else
-          puts triple(feature_id, "rdf:type", "obo:SO_0000110") + "  # SO:sequence_feature"
+      case feature
+      when "CDS"
+        puts triple(feature_id, "rdf:type", "obo:SO_0000316") + "  # SO:CDS"
+      when "mRNA"
+        puts triple(feature_id, "rdf:type", "obo:SO_0000234") + "  # SO:mRNA"
+      when "misc_RNA"
+        puts triple(feature_id, "rdf:type", "obo:SO_0000673") + "  # SO:transcript"
+      when "precursor_RNA"
+        puts triple(feature_id, "rdf:type", "obo:SO_0000185") + "  # SO:primary_transcript"
+      when "ncRNA"
+        puts triple(feature_id, "rdf:type", "obo:SO_0000655") + "  # SO:ncRNA"
+      when "tRNA"
+        puts triple(feature_id, "rdf:type", "obo:SO_0000253") + "  # SO:tRNA"
+      when "rRNA"
+        puts triple(feature_id, "rdf:type", "obo:SO_0000252") + "  # SO:rRNA"
+      else
+        if so_id = @ft_so.so_id(feature)
+          if so_id != "undefined"
+            so = so_id.sub(':', '_')
+            puts triple(feature_id, "rdf:type", "obo:#{so}") + "  # SO:#{@ft_so.so_term(feature)}"
+          else
+            puts triple(feature_id, "rdf:type", "obo:SO_0000110") + "  # SO:sequence_feature"
+          end
         end
       end
 
-      loc_id, _ = new_location(feat.position)
+      gene_id = locus_tag = gene = nil
+      if hash["locus_tag"]
+        if locus_tag = hash["locus_tag"].first
+          gene_id = @gene[locus_tag]
+        end
+      elsif hash["gene"]
+        if gene = hash["gene"].first
+          gene_id = @gene[gene]
+        end
+      end
+
+      puts triple(feature_id, "rdfs:label", quote(locus_tag || gene || feature))
+      puts triple(feature_id, "obo:so_part_of", gene_id || @sequence_id)
+
+      if gene_id
+        subpart_type = { :id => "obo:SO_0000147", :term => "SO:exon" }
+      else
+        subpart_type = { :id => "obo:SO_0000001", :term => "SO:region" }
+      end
+
+      loc_id, subparts = new_location(feat.position, subpart_type)
       puts triple(feature_id, "faldo:location", loc_id)
+      unless subparts.empty?
+        puts triple(feature_id, "obo:so_has_part", "(#{subparts.join(' ')})")  # rdf:List
+      end
 
       parse_qualifiers(feature_id, hash)
     end
+    $stderr.puts "Features: #{@feature_count.to_json}"
   end
 
   def parse_qualifiers(feature_id, hash)
     hash.each do |qual, vals|
       vals.each do |val|
         if val == true
-          puts triple(feature_id, "insdc:feature_#{qual}", true)
+          puts triple(feature_id, "insdc:#{qual}", true)
         else
           data = val.to_s.gsub(/\s+/, ' ').strip
           case qual
@@ -557,9 +578,9 @@ class RefSeq2RDF
             end
           else
             if data[/^\d+$/]
-              puts triple(feature_id, "insdc:feature_#{qual}", data)
+              puts triple(feature_id, "insdc:#{qual}", data)
             else
-              puts triple(feature_id, "insdc:feature_#{qual}", quote(data))
+              puts triple(feature_id, "insdc:#{qual}", quote(data))
             end
           end
         end
