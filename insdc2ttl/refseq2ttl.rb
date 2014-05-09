@@ -172,11 +172,13 @@ class RefSeq2RDF
 
   def xref(subject, db, id)
     case db
+    when "GI"
+      id = "GI:#{id}"
     when "HOMD"
       id.sub!(/^tax_/, '')
     when "ECOCYC"
       #id = "ECOCYC:#{id}"
-    when "GI", "ERIC", "HMP", "PSEUDO", "Pathema"
+    when "ERIC", "HMP", "PSEUDO", "Pathema"
       unless @xref_warn[db]
         $stderr.puts "Warning: Need to register '#{db}' in Identifiers.org"
         @xref_warn[db] = true
@@ -207,29 +209,31 @@ class RefSeq2RDF
     puts triple(loc_id, "insdc:location", quote(pos))
 
     @locations = Bio::Locations.new(pos)
-    pos_start = new_uuid
+    pos_begin = new_uuid
     pos_end = new_uuid
     puts triple(loc_id, "rdf:type", "faldo:Region")
-    puts triple(loc_id, "faldo:begin", pos_start)
+    puts triple(loc_id, "faldo:begin", pos_begin)
     puts triple(loc_id, "faldo:end", pos_end)
+    # join(<1,60..99,161..241,302..370,436..594,676..887,993..1141,1209..1329,1387..1559,1626..1646,1708..>1843)
+    fuzzy_first = @locations.first.lt or @locations.last.gt
+    fuzzy_last = @locations.last.lt or @locations.last.gt
+    strand = @locations.first.strand
     # [TODO] Note that positions of an object located over the origin can be faldo:begin > faldo:end
-    # e.g., join(800..900,1000..1024,1..234) will be faldo:start 800 and faldo:end 234
-    new_position(pos_start, @locations.first.from, @locations.first.strand)
-    new_position(pos_end, @locations.last.to, @locations.last.strand)
+    # e.g., join(800..900,1000..1024,1..234) will be faldo:begin 800 and faldo:end 234
+    new_stranded_positions(pos_begin, pos_end, @locations.first.from, @locations.last.to, strand, fuzzy_first, fuzzy_last)
 
     list = []
     if subpart_type
       @locations.each do |loc|
         subpart_id = new_uuid
-        subpart_start = new_uuid
+        subpart_begin = new_uuid
         subpart_end = new_uuid
         puts triple(subpart_id, "obo:so_part_of", loc_id)
         puts triple(subpart_id, "rdf:type", subpart_type[:id]) + "  # #{subpart_type[:term]}"
         puts triple(subpart_id, "rdf:type", "faldo:Region")
-        puts triple(subpart_id, "faldo:begin", subpart_start)
+        puts triple(subpart_id, "faldo:begin", subpart_begin)
         puts triple(subpart_id, "faldo:end", subpart_end)
-        new_position(subpart_start, loc.from, loc.strand)
-        new_position(subpart_end, loc.to, loc.strand)
+        new_stranded_positions(subpart_begin, subpart_end, loc.from, loc.to, loc.strand)
         list << subpart_id
       end
     end
@@ -237,15 +241,25 @@ class RefSeq2RDF
     return loc_id, list
   end
 
-  def new_position(pos_id, pos, strand)
+  def new_stranded_positions(pos_begin, pos_end, from, to, strand, fuzzy_from = nil, fuzzy_to = nil)
+    if strand > 0
+      new_position(pos_begin, from, "faldo:ForwardStrandPosition", fuzzy_from)
+      new_position(pos_end, to, "faldo:ForwardStrandPosition", fuzzy_to)
+    else
+      new_position(pos_begin, to, "faldo:ReverseStrandPosition", fuzzy_to)
+      new_position(pos_end, from, "faldo:ReverseStrandPosition", fuzzy_from)
+    end
+  end
+
+  def new_position(pos_id, pos, strand, fuzzy = nil)
     puts triple(pos_id, "faldo:position", pos)
     puts triple(pos_id, "faldo:reference", @sequence_id)
-    puts triple(pos_id, "rdf:type", "faldo:ExactPosition")
-    if strand > 0
-      puts triple(pos_id, "rdf:type", "faldo:ForwardStrandPosition")
+    if fuzzy
+      puts triple(pos_id, "rdf:type", "faldo:FuzzyPosition")
     else
-      puts triple(pos_id, "rdf:type", "faldo:ReverseStrandPosition")
+      puts triple(pos_id, "rdf:type", "faldo:ExactPosition")
     end
+    puts triple(pos_id, "rdf:type", strand)
   end
 
   ###
@@ -301,8 +315,10 @@ class RefSeq2RDF
     sequence_ref(@entry.references)
   end
 
-  def sequence_type(so = "SO:chromosome")
+  def sequence_type(so = "SO:sequence")
     case so
+    when /0000001/, "SO:region", "SO:sequence"
+      puts triple(@sequence_id, "rdf:type", "obo:SO_0000001") + "  # SO:sequence"
     when /0000340/, "SO:chromosome"
       puts triple(@sequence_id, "rdf:type", "obo:SO_0000340") + "  # SO:chromosome"
     when /0000155/, "SO:plasmid"
@@ -610,7 +626,7 @@ if __FILE__ == $0
   )
 
   opts = {
-    :seqtype => "SO:chromosome",
+    :seqtype => "SO:sequence",
   }
 
   args.each_option do |name, value|
