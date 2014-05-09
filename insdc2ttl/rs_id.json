@@ -40,6 +40,36 @@
   },
 
   /*
+   * NCBI RefSeq xref human
+   */
+
+  "CCDS": {
+    "label": "Consensus CDS",
+    "class": "CCDS",
+    "prefix": "http://identifiers.org/ccds/"
+  },
+  "HGNC": {
+    "label": "HUGO Gene Nomenclature Committee",
+    "class": "HGNC",
+    "prefix": "http://identifiers.org/hgnc/"
+  },
+  "HPRD": {
+    "label": "Human Protein Reference Database",
+    "class": "HPRD",
+    "prefix": "http://identifiers.org/hprd/"
+  },
+  "MIM": {
+    "label": "Online Mendelian Inheritance in Man",
+    "class": "OMIM",
+    "prefix": "http://identifiers.org/omim/"
+  },
+  "miRBase": {
+    "label": "miRBase Sequence Database",
+    "class": "miRBase",
+    "prefix": "http://identifiers.org/mirbase/"
+  },
+
+  /*
    * NCBI RefSeq xref
    */
 
