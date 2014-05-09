@@ -46,3 +46,7 @@ and popular data formats including
 * [RefSeq RDF](http://ep.dbcls.jp/rdf/togogenome/refseq/current/)
 * [taxdump2owl](http://ep.dbcls.jp/rdf/togogenome/ontology/taxonomy/current/)
 * DDBJ SPARQL (under construction)
+* GFF files (to be prepared)
+* GTF files (to be prepared)
+* GVF files (to be prepared)
+* VCF files (to be prepared)
