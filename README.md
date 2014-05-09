@@ -5,7 +5,7 @@ RDF summit organized by the Database Center for Life Science ([DBCLS](http://dbc
 ## The 1st RDF summit in 2014
 
 Main theme of the 1st RDF summit is to standardize the RDF representation of
-genomic annotations, locations and variations among
+genomic sequence annotations, locations and variations among
 the International Nucleotide Sequence Database Collaboration ([INSDC](http://www.insdc.org/)/[DDBJ](http://www.ddbj.nig.ac.jp/)),
 the European Bioinformatics Institute ([EBI](http://www.ebi.ac.uk/)/[Ensembl](http://www.ensembl.org/)),
 and popular data formats including
@@ -25,6 +25,8 @@ and popular data formats including
 * [SIO](http://sio.semanticscience.org/)
 * [SO](http://www.sequenceontology.org/)
 * [INSDC](https://github.com/tfuji/INSDC)
+* [CLO](http://www.clo-ontology.org/)
+* [BAO](http://bioassayontology.org/wp/bao-ontologies/)
 
 ### URIs
 
