@@ -33,6 +33,7 @@ and popular data formats including
 * [Identifiers.org](http://identifiers.org/)
 * [Bio2RDF](http://bio2rdf.org/)
 * [TogoWS](http://togows.org)
+* [BioSamples](http://www.ebi.ac.uk/rdf/documentation/biosamples)
 
 ### Tools
 
@@ -40,15 +41,3 @@ and popular data formats including
 * [insdc2ttl](https://github.com/dbcls/rdfsummit/tree/master/insdc2ttl)
 * [taxdump2owl](https://github.com/dbcls/rdfsummit/tree/master/taxdump2owl)
 
-### Sample datasets
-
-* [BioSamples](http://www.ebi.ac.uk/rdf/documentation/biosamples)
-* [UniProt SPARQL](http://beta.sparql.uniprot.org/)
-* [UniProt RDF](http://ep.dbcls.jp/rdf/uniprot/current/)
-* [RefSeq RDF](http://ep.dbcls.jp/rdf/togogenome/refseq/current/)
-* [taxdump2owl](http://ep.dbcls.jp/rdf/togogenome/ontology/taxonomy/current/)
-* DDBJ SPARQL (under construction)
-* GFF files (to be prepared)
-* GTF files (to be prepared)
-* GVF files (to be prepared)
-* VCF files (to be prepared)
