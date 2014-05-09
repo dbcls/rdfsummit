@@ -2,7 +2,7 @@
 #
 # Taxonomy ontology generator
 #
-#  Copyright (C) 2013 Toshiaki Katayama <ktym@dbcls.jp>
+#  Copyright (C) 2013,2014 Toshiaki Katayama <ktym@dbcls.jp>
 #
 # Usage:
 #
@@ -25,7 +25,7 @@ end
 module TaxonomyOntology
 
   PREFIX = [
-    "@base <http://ddbj.nig.ac.jp/ontologies/taxonomy#> .",
+    "@base <http://ddbj.nig.ac.jp/ontologies/taxonomy/> .",
     "@prefix : <> .",
     "@prefix owl: <http://www.w3.org/2002/07/owl#> .",
     "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .",
