@@ -166,7 +166,7 @@ class RefSeq2RDF
     @prefix = default_prefix + [
       #triple("@prefix", "genome:", "<http://purl.jp/bio/10/genome/>"),
       #triple("@prefix", "insdc:", "<http://insdc.org/owl/>"),
-      triple("@prefix", "insdc:", "<http://ddbj.nig.ac.jp/ontologies/sequence#>"),
+      triple("@prefix", "insdc:", "<http://ddbj.nig.ac.jp/ontologies/sequence/>"),
     ]
   end
 
@@ -184,9 +184,9 @@ class RefSeq2RDF
     end
 
     if hash = @rs_id.fetch(db)
-      uri = "<#{hash['prefix']}#{id}>"
+      uri = "<#{hash['prefix']}/#{id}>"
       puts triple(subject, "rdfs:seeAlso", uri)
-      puts triple(uri, "rdfs:label", quote("#{db}:#{id}"))
+      puts triple(uri, "rdfs:label", quote(id))
       #puts triple(uri, "rdf:type", "idorg:#{hash['class']}")
       puts triple(uri, "rdf:type", "<#{hash['prefix']}>")
     else
@@ -366,11 +366,21 @@ class RefSeq2RDF
   end
 
   def sequence_link_bioproject(str)
-    xref(@sequence_id, 'BioProject', "#{str}")
+    xref_id = new_uuid
+    id_pfx = "http://identifiers.org/bioproject"
+    puts triple(@sequence_id, 'insdc:dblink', xref_id)
+    puts triple(xref_id, 'rdfs:label', quote(str))
+    puts triple(xref_id, 'rdfs:seeAlso', "<#{id_pfx}/#{str}>")
+    puts triple("<#{id_pfx}/#{str}>", 'rdf:type', "<#{id_pfx}>")
   end
 
   def sequence_link_biosample(str)
-    xref(@sequence_id, 'BioSample', "#{str}")
+    xref_id = new_uuid
+    id_pfx = "http://identifiers.org/biosample"
+    puts triple(@sequence_id, 'insdc:dblink', xref_id)
+    puts triple(xref_id, 'rdfs:label', quote(str))
+    puts triple(xref_id, 'rdfs:seeAlso', "<#{id_pfx}/#{str}>")
+    puts triple("<#{id_pfx}/#{str}>", 'rdf:type', "<#{id_pfx}>")
   end
 
   def sequence_ref(refs)
