@@ -12,7 +12,7 @@ and popular data formats including
 [GFF](http://www.sequenceontology.org/gff3.shtml),
 [GTF](http://mblab.wustl.edu/GTF22.html),
 [GVF](http://www.sequenceontology.org/resources/gvf.html) and
-[VCF](http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41).
+[VCF](http://vcftools.sourceforge.net/specs.html).
 
 ### Meeting agenda
 
