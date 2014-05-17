@@ -190,7 +190,7 @@ class INSDC2RDF
       puts triple(subject, "rdfs:seeAlso", uri)
       puts triple(uri, "rdfs:label", quote(id))
       #puts triple(uri, "rdf:type", "idorg:#{hash['class']}")
-      puts triple(uri, "rdf:type", "<#{hash['prefix']}>")
+      puts triple(uri, "rdf:type", "<http://info.identifiers.org/#{db}/Entry>")
     else
       unless @xref_warn[db]
         $stderr.puts "Error: New database '#{db}' found. Add it to the rs_id.json file and/or Identifiers.org."
@@ -204,9 +204,6 @@ class INSDC2RDF
   ###
 
   def new_location(pos, subpart_type = false)
-    loc_id = new_uuid
-
-    puts triple(loc_id, "insdc:location", quote(pos))
 
     @locations = Bio::Locations.new(pos)
     fuzzy_first = @locations.first.lt or @locations.last.gt
@@ -215,6 +212,9 @@ class INSDC2RDF
     
     pos_begin =position_uri_from_location_start(@locations.first)
     pos_end = position_uri_from_location_end(@locations.last)
+    loc_id = "location:#{@entry.entry_id}\\\/#{@locations.first.from}t#{@locations.last.to}"
+
+    puts triple(loc_id, "insdc:location", quote(pos))
     
     puts triple(loc_id, "rdf:type", "faldo:Region")
     puts triple(loc_id, "faldo:begin", pos_begin)
@@ -228,8 +228,8 @@ class INSDC2RDF
     if subpart_type
       @locations.each do |loc|
         subpart_id = new_uuid
-        subpart_begin = "position:#{@entry.entry_id}/position/#{loc.from}"
-        subpart_end = "position:#{@entry.entry_id}/position/#{loc.to}"
+        subpart_begin = position_uri_from_location_start(loc)
+        subpart_end = position_uri_from_location_end(loc)
         puts triple(subpart_id, "obo:so_part_of", loc_id)
         puts triple(subpart_id, "rdf:type", subpart_type[:id]) + "  # #{subpart_type[:term]}"
         puts triple(subpart_id, "rdf:type", "faldo:Region")
@@ -244,10 +244,10 @@ class INSDC2RDF
   end
   
   def position_uri_from_location_start(loc)
-    	"position:#{@entry.entry_id}/position/#{loc.from}"
+    	"insdc:#{@entry.entry_id}\\\/position\\\/#{loc.from}"
   end
   def position_uri_from_location_end(loc)
-	"position:#{@entry.entry_id}/position/#{loc.to}"
+	"insdc:#{@entry.entry_id}\\\/position\\\/#{loc.to}"
   end
   def new_stranded_positions(pos_begin, pos_end, from, to, strand, fuzzy_from = nil, fuzzy_to = nil)
     if strand > 0
@@ -261,7 +261,7 @@ class INSDC2RDF
 
   def new_position(pos_id, pos, strand, fuzzy = nil)
     puts triple(pos_id, "faldo:position", pos)
-    puts triple(pos_id, "faldo:reference", @sequence_id)
+    puts triple(pos_id, "faldo:reference", "<http://togows.org/entry/nucleotide/#{@entry.acc_version}.fasta>")
     if fuzzy
       puts triple(pos_id, "rdf:type", "faldo:FuzzyPosition")
     else
@@ -295,7 +295,7 @@ class INSDC2RDF
   # * bind sequences by BioProject ID?
   # * flag complete/draft?
   def parse_sequence
-    @sequence_id = "sequence:" + @entry.entry_id
+    @sequence_id = "insdc:" + @entry.entry_id
 
     # [TODO] How to identify the input is chromosome/plasmid/contig/...?
     sequence_type(@seqtype)
@@ -393,21 +393,20 @@ class INSDC2RDF
   end
 
   def sequence_link_bioproject(str)
-    xref_id = new_uuid
     id_pfx = "http://identifiers.org/bioproject"
+    xref_id = "<#{id_pfx}/#{str}>"
     puts triple(@sequence_id, 'insdc:dblink', xref_id)
     puts triple(xref_id, 'rdfs:label', quote(str))
-    puts triple(xref_id, 'rdfs:seeAlso', "<#{id_pfx}/#{str}>")
-    puts triple("<#{id_pfx}/#{str}>", 'rdf:type', "<#{id_pfx}>")
+    puts triple(xref_id, 'rdf:type', "<#{id_pfx}/Entry>")
   end
 
   def sequence_link_biosample(str)
-    xref_id = new_uuid
+    xref_id = "<#{id_pfx}/#{str}>"
+    xred_type = "<#{id_pfx}#Entry>"
     id_pfx = "http://identifiers.org/biosample"
     puts triple(@sequence_id, 'insdc:dblink', xref_id)
     puts triple(xref_id, 'rdfs:label', quote(str))
-    puts triple(xref_id, 'rdfs:seeAlso', "<#{id_pfx}/#{str}>")
-    puts triple("<#{id_pfx}/#{str}>", 'rdf:type', "<#{id_pfx}>")
+    puts triple(xred_id, 'rdf:type', xref_type)
   end
 
   def sequence_ref(refs)
