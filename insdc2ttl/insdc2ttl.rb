@@ -190,7 +190,7 @@ class INSDC2RDF
       puts triple(subject, "rdfs:seeAlso", uri)
       puts triple(uri, "rdfs:label", quote(id))
       #puts triple(uri, "rdf:type", "idorg:#{hash['class']}")
-      puts triple(uri, "rdf:type", "<http://info.identifiers.org/#{db}/Entry>")
+      puts triple(uri, "rdf:type", "<http://info.identifiers.org/#{db}#Entry>")
     else
       unless @xref_warn[db]
         $stderr.puts "Error: New database '#{db}' found. Add it to the rs_id.json file and/or Identifiers.org."
@@ -227,6 +227,7 @@ class INSDC2RDF
     list = []
     if subpart_type
       @locations.each do |loc|
+	      puts loc.inspect
         subpart_id = new_uuid
         subpart_begin = position_uri_from_location_start(loc)
         subpart_end = position_uri_from_location_end(loc)
@@ -244,11 +245,13 @@ class INSDC2RDF
   end
   
   def position_uri_from_location_start(loc)
-    	"insdc:#{@entry.entry_id}\\\/position\\\/#{loc.from}"
+    	"insdc:#{@entry.entry_id}\\\/position\\\/#{loc.from}.#{loc.strand}"
   end
+
   def position_uri_from_location_end(loc)
-	"insdc:#{@entry.entry_id}\\\/position\\\/#{loc.to}"
+	"insdc:#{@entry.entry_id}\\\/position\\\/#{loc.to}.#{loc.strand}"
   end
+
   def new_stranded_positions(pos_begin, pos_end, from, to, strand, fuzzy_from = nil, fuzzy_to = nil)
     if strand > 0
       new_position(pos_begin, from, "faldo:ForwardStrandPosition", fuzzy_from)
@@ -397,13 +400,13 @@ class INSDC2RDF
     xref_id = "<#{id_pfx}/#{str}>"
     puts triple(@sequence_id, 'insdc:dblink', xref_id)
     puts triple(xref_id, 'rdfs:label', quote(str))
-    puts triple(xref_id, 'rdf:type', "<#{id_pfx}/Entry>")
+    puts triple(xref_id, 'rdf:type', "<#{id_pfx}#Entry>")
   end
 
   def sequence_link_biosample(str)
+    id_pfx = "http://identifiers.org/biosample"
     xref_id = "<#{id_pfx}/#{str}>"
     xred_type = "<#{id_pfx}#Entry>"
-    id_pfx = "http://identifiers.org/biosample"
     puts triple(@sequence_id, 'insdc:dblink', xref_id)
     puts triple(xref_id, 'rdfs:label', quote(str))
     puts triple(xred_id, 'rdf:type', xref_type)
