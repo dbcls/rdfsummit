@@ -209,15 +209,17 @@ class INSDC2RDF
     puts triple(loc_id, "insdc:location", quote(pos))
 
     @locations = Bio::Locations.new(pos)
-    pos_begin = new_uuid
-    pos_end = new_uuid
+    fuzzy_first = @locations.first.lt or @locations.last.gt
+    fuzzy_last = @locations.last.lt or @locations.last.gt
+    strand = @locations.first.strand
+    
+    pos_begin =position_uri_from_location_start(@locations.first)
+    pos_end = position_uri_from_location_end(@locations.last)
+    
     puts triple(loc_id, "rdf:type", "faldo:Region")
     puts triple(loc_id, "faldo:begin", pos_begin)
     puts triple(loc_id, "faldo:end", pos_end)
     # join(<1,60..99,161..241,302..370,436..594,676..887,993..1141,1209..1329,1387..1559,1626..1646,1708..>1843)
-    fuzzy_first = @locations.first.lt or @locations.last.gt
-    fuzzy_last = @locations.last.lt or @locations.last.gt
-    strand = @locations.first.strand
     # [TODO] Note that positions of an object located over the origin can be faldo:begin > faldo:end
     # e.g., join(800..900,1000..1024,1..234) will be faldo:begin 800 and faldo:end 234
     new_stranded_positions(pos_begin, pos_end, @locations.first.from, @locations.last.to, strand, fuzzy_first, fuzzy_last)
@@ -226,8 +228,8 @@ class INSDC2RDF
     if subpart_type
       @locations.each do |loc|
         subpart_id = new_uuid
-        subpart_begin = new_uuid
-        subpart_end = new_uuid
+        subpart_begin = "position:#{@entry.entry_id}/position/#{loc.from}"
+        subpart_end = "position:#{@entry.entry_id}/position/#{loc.to}"
         puts triple(subpart_id, "obo:so_part_of", loc_id)
         puts triple(subpart_id, "rdf:type", subpart_type[:id]) + "  # #{subpart_type[:term]}"
         puts triple(subpart_id, "rdf:type", "faldo:Region")
@@ -240,7 +242,13 @@ class INSDC2RDF
 
     return loc_id, list
   end
-
+  
+  def position_uri_from_location_start(loc)
+    	"position:#{@entry.entry_id}/position/#{loc.from}"
+  end
+  def position_uri_from_location_end(loc)
+	"position:#{@entry.entry_id}/position/#{loc.to}"
+  end
   def new_stranded_positions(pos_begin, pos_end, from, to, strand, fuzzy_from = nil, fuzzy_to = nil)
     if strand > 0
       new_position(pos_begin, from, "faldo:ForwardStrandPosition", fuzzy_from)
@@ -287,7 +295,7 @@ class INSDC2RDF
   # * bind sequences by BioProject ID?
   # * flag complete/draft?
   def parse_sequence
-    @sequence_id = new_uuid
+    @sequence_id = "sequence:" + @entry.entry_id
 
     # [TODO] How to identify the input is chromosome/plasmid/contig/...?
     sequence_type(@seqtype)
