@@ -52,7 +52,7 @@ module RDFSupport
       triple("@prefix", "rdfs:", "<http://www.w3.org/2000/01/rdf-schema#>"),
       #triple("@prefix", "dcterms:", "<http://purl.org/dc/terms/>"),
       triple("@prefix", "xsd:", "<http://www.w3.org/2001/XMLSchema#>"),
-      #triple("@prefix", "sio:", "<http://semanticscience.org/resource#>"),
+      triple("@prefix", "sio:", "<http://semanticscience.org/resource/>"),
       #triple("@prefix", "so:", "<http://purl.org/obo/owl/SO#>"),
       triple("@prefix", "obo:", "<http://purl.obolibrary.org/obo/>"),
       triple("@prefix", "faldo:", "<http://biohackathon.org/resource/faldo#>"),
@@ -112,18 +112,26 @@ class FT_SO
     end
   end
 
+  # puts ftso.so_id("-10_signal")  # => "obo:SO_0000175"
+  def obo_id(feature)
+    return "obo:" + so_id(feature).sub(':', '_')
+  end
+
+  # puts ftso.so_term("-10_signal")  # => "minus_10_signal"
   def so_term(feature)
     if hash = @data[feature]
       return hash["so_term"]
     end
   end
 
+  # puts ftso.so_desc("-10_signal")  # => "A conserved region about 10-bp upstream of ..."
   def so_desc(feature)
     if hash = @data[feature]
       return hash["so_desc"]
     end
   end
 
+  # puts ftso.ft_desc("-10_signal")  # => "Pribnow box; a conserved region about 10 bp upstream of ..."
   def ft_desc(feature)
     if hash = @data[feature]
       return hash["ft_desc"]
@@ -139,16 +147,17 @@ class INSDC2RDF
 
   include RDFSupport
 
-  def initialize(io = nil, seqtype = nil)
-    set_prefixes
-
-    @seqtype = seqtype
+  def initialize(io = nil, opts = nil)
+    @datasource = opts[:datasource]
+    @seqtype = opts[:seqtype]
     @rs_id = RS_ID.new
     @ft_so = FT_SO.new
 
     @gene = {}
     @xref_warn = {}
     @feature_count = Hash.new(0)
+
+    set_prefixes
 
     puts prefix
     puts
@@ -167,6 +176,7 @@ class INSDC2RDF
       #triple("@prefix", "genome:", "<http://purl.jp/bio/10/genome/>"),
       #triple("@prefix", "insdc:", "<http://insdc.org/owl/>"),
       triple("@prefix", "insdc:", "<http://ddbj.nig.ac.jp/ontologies/sequence/>"),
+      triple("@prefix", "entry:", "<http://identifiers.org/#{@datasource}/>"),  # can be 'insdc' or 'refseq'
     ]
   end
 
@@ -189,8 +199,7 @@ class INSDC2RDF
       uri = "<#{hash['prefix']}/#{id}>"
       puts triple(subject, "rdfs:seeAlso", uri)
       puts triple(uri, "rdfs:label", quote(id))
-      #puts triple(uri, "rdf:type", "idorg:#{hash['class']}")
-      puts triple(uri, "rdf:type", "<http://info.identifiers.org/#{db}#Entry>")
+      puts triple(uri, "sio:SIO_000068", "<#{hash['prefix']}>")  # sio:is-part-of
     else
       unless @xref_warn[db]
         $stderr.puts "Error: New database '#{db}' found. Add it to the rs_id.json file and/or Identifiers.org."
@@ -203,53 +212,70 @@ class INSDC2RDF
   ### FALDO http://biohackathon.org/faldo
   ###
 
-  def new_location(pos, subpart_type = false)
+  def new_region_uri(so, from, to)
+    "entry:#{@entry.acc_version}#region:#{so}:#{from}-#{to}"
+  end
 
+  def new_position_uri(pos, strand)
+    "entry:#{@entry.acc_version}#position:#{pos}.#{strand}"
+  end
+
+  def new_location(pos, feature_type = {:id => "SO:0000001", :term => "region"})
     @locations = Bio::Locations.new(pos)
-    fuzzy_first = @locations.first.lt or @locations.last.gt
-    fuzzy_last = @locations.last.lt or @locations.last.gt
+
+    min, max = @locations.span
     strand = @locations.first.strand
-    
-    pos_begin =position_uri_from_location_start(@locations.first)
-    pos_end = position_uri_from_location_end(@locations.last)
-    loc_id = "location:#{@entry.entry_id}\\\/#{@locations.first.from}t#{@locations.last.to}"
+
+    pos_begin =	new_position_uri(min, @locations.first.strand)
+    pos_end = new_position_uri(max, @locations.last.strand)
+    if strand > 0
+      loc_id = new_region_uri(feature_type[:id], min, max)
+    else
+      loc_id = new_region_uri(feature_type[:id], max, min)
+    end
 
     puts triple(loc_id, "insdc:location", quote(pos))
-    
     puts triple(loc_id, "rdf:type", "faldo:Region")
     puts triple(loc_id, "faldo:begin", pos_begin)
     puts triple(loc_id, "faldo:end", pos_end)
+
+    fuzzy_first = @locations.first.lt or @locations.last.gt
+    fuzzy_last = @locations.last.lt or @locations.last.gt
+    
     # join(<1,60..99,161..241,302..370,436..594,676..887,993..1141,1209..1329,1387..1559,1626..1646,1708..>1843)
     # [TODO] Note that positions of an object located over the origin can be faldo:begin > faldo:end
     # e.g., join(800..900,1000..1024,1..234) will be faldo:begin 800 and faldo:end 234
     new_stranded_positions(pos_begin, pos_end, @locations.first.from, @locations.last.to, strand, fuzzy_first, fuzzy_last)
 
     list = []
-    if subpart_type
+    count = 1
+    # [TODO] need to confirm that if there are any features having subparts (except for genes)
+    if feature_type[:term] == "exon"
       @locations.each do |loc|
-	      puts loc.inspect
         subpart_id = new_uuid
-        subpart_begin = position_uri_from_location_start(loc)
-        subpart_end = position_uri_from_location_end(loc)
-        puts triple(subpart_id, "obo:so_part_of", loc_id)
+        if loc.strand > 0
+          exon_id = new_region_uri(feature_type[:id], loc.from, loc.to)
+        else
+          exon_id = new_region_uri(feature_type[:id], loc.to, loc.from)
+        end
+        subpart_begin = new_position_uri(loc.from, loc.strand)
+        subpart_end = new_position_uri(loc.to, loc.strand)
+
+        #puts triple(subpart_id, "obo:so_part_of", loc_id)
+        puts triple(subpart_id, "sio:SIO_000300", count)    # sio:has-value
+        puts triple(subpart_id, "sio:SIO_000628", exon_id)   # sio:referes-to
+
         puts triple(subpart_id, "rdf:type", subpart_type[:id]) + "  # #{subpart_type[:term]}"
         puts triple(subpart_id, "rdf:type", "faldo:Region")
         puts triple(subpart_id, "faldo:begin", subpart_begin)
         puts triple(subpart_id, "faldo:end", subpart_end)
         new_stranded_positions(subpart_begin, subpart_end, loc.from, loc.to, loc.strand)
         list << subpart_id
+        count += 1
       end
     end
 
     return loc_id, list
-  end
-  
-  def position_uri_from_location_start(loc)
-    	"insdc:#{@entry.entry_id}\\\/position\\\/#{loc.from}.#{loc.strand}"
-  end
-
-  def position_uri_from_location_end(loc)
-	"insdc:#{@entry.entry_id}\\\/position\\\/#{loc.to}.#{loc.strand}"
   end
 
   def new_stranded_positions(pos_begin, pos_end, from, to, strand, fuzzy_from = nil, fuzzy_to = nil)
@@ -264,7 +290,7 @@ class INSDC2RDF
 
   def new_position(pos_id, pos, strand, fuzzy = nil)
     puts triple(pos_id, "faldo:position", pos)
-    puts triple(pos_id, "faldo:reference", "<http://togows.org/entry/nucleotide/#{@entry.acc_version}.fasta>")
+    puts triple(pos_id, "faldo:reference", @sequence_id)
     if fuzzy
       puts triple(pos_id, "rdf:type", "faldo:FuzzyPosition")
     else
@@ -298,7 +324,7 @@ class INSDC2RDF
   # * bind sequences by BioProject ID?
   # * flag complete/draft?
   def parse_sequence
-    @sequence_id = "insdc:" + @entry.entry_id
+    @sequence_id = "entry:#{@entry.acc_version}"
 
     # [TODO] How to identify the input is chromosome/plasmid/contig/...?
     sequence_type(@seqtype)
@@ -476,12 +502,13 @@ class INSDC2RDF
       gene_id = new_uuid
       hash = gene.to_hash
 
-      puts triple(gene_id, "rdf:type", "obo:SO_0000704") + "  # SO:gene"
+      puts triple(gene_id, "rdf:type", @ft_so.obo_id("gene")) + "  # SO:gene"
       puts triple(gene_id, "obo:so_part_of", @sequence_id)
 
-      loc_id, _ = new_location(gene.position)
+      loc_id, _ = new_location(gene.position, {:id => @ft_so.so_id("gene"), :term => "gene"})
       puts triple(gene_id, "faldo:location", loc_id)
 
+      # try to cache gene IDs in the @gene hash for linking with other features (CDS, mRNA etc.)
       if hash["locus_tag"]
         locus_tag = hash["locus_tag"].first
         @gene[locus_tag] = gene_id
@@ -511,32 +538,17 @@ class INSDC2RDF
       feature = feat.feature
       @feature_count[feature] += 1
 
-      case feature
-      when "CDS"
-        puts triple(feature_id, "rdf:type", "obo:SO_0000316") + "  # SO:CDS"
-      when "mRNA"
-        puts triple(feature_id, "rdf:type", "obo:SO_0000234") + "  # SO:mRNA"
-      when "misc_RNA"
-        puts triple(feature_id, "rdf:type", "obo:SO_0000673") + "  # SO:transcript"
-      when "precursor_RNA"
-        puts triple(feature_id, "rdf:type", "obo:SO_0000185") + "  # SO:primary_transcript"
-      when "ncRNA"
-        puts triple(feature_id, "rdf:type", "obo:SO_0000655") + "  # SO:ncRNA"
-      when "tRNA"
-        puts triple(feature_id, "rdf:type", "obo:SO_0000253") + "  # SO:tRNA"
-      when "rRNA"
-        puts triple(feature_id, "rdf:type", "obo:SO_0000252") + "  # SO:rRNA"
-      else
-        if so_id = @ft_so.so_id(feature)
-          if so_id != "undefined"
-            so = so_id.sub(':', '_')
-            puts triple(feature_id, "rdf:type", "obo:#{so}") + "  # SO:#{@ft_so.so_term(feature)}"
-          else
-            puts triple(feature_id, "rdf:type", "obo:SO_0000110") + "  # SO:sequence_feature"
-          end
+      so_id = "SO:0000001"
+      so_term = "region"
+
+      if so_id = @ft_so.so_id(feature)
+        if so_id != "undefined"
+          so_term = @ft_so.so_term(feature)
         end
       end
+      puts triple(feature_id, "rdf:type", @ft_so.obo_id(feature)) + "  # SO:#{so_term}"
 
+      # try to link gene-related features (CDS, mRNA etc.) by matching /locus_tag or /gene qualifier values
       gene_id = locus_tag = gene = nil
       if hash["locus_tag"]
         if locus_tag = hash["locus_tag"].first
@@ -551,16 +563,17 @@ class INSDC2RDF
       puts triple(feature_id, "rdfs:label", quote(locus_tag || gene || feature))
       puts triple(feature_id, "obo:so_part_of", gene_id || @sequence_id)
 
+      # link to exons in join(exon1, exon2, ...)
       if gene_id
-        subpart_type = { :id => "obo:SO_0000147", :term => "SO:exon" }
+        feature_type = { :id => "SO:0000147", :term => "exon" }
       else
-        subpart_type = { :id => "obo:SO_0000001", :term => "SO:region" }
+        feature_type = { :id => so_id, :term => so_term }
       end
-
-      loc_id, subparts = new_location(feat.position, subpart_type)
+      loc_id, subparts = new_location(feat.position, feature_type)
       puts triple(feature_id, "faldo:location", loc_id)
       unless subparts.empty?
-        puts triple(feature_id, "obo:so_has_part", "(#{subparts.join(' ')})")  # rdf:List
+        #puts triple(feature_id, "obo:so_has_part", "(#{subparts.join(' ')})")  # rdf:List
+        puts triple(feature_id, "sio:SIO_000974", subparts.join(', '))  # sio:has-ordered-part
       end
 
       parse_qualifiers(feature_id, hash)
@@ -634,16 +647,20 @@ if __FILE__ == $0
   require 'getoptlong'
 
   args = GetoptLong.new(
+    [ '--datasource', '-d', GetoptLong::REQUIRED_ARGUMENT ],
     [ '--seqtype', '-t', GetoptLong::REQUIRED_ARGUMENT ],
     [ '--prefixes', '-p', GetoptLong::NO_ARGUMENT ],
   )
 
   opts = {
     :seqtype => "SO:sequence",
+    :datasource => "insdc",
   }
 
   args.each_option do |name, value|
     case name
+    when /--datasource/
+      opts[:datasource] = value
     when /--seqtype/
       opts[:seqtype] = value
     when /--prefixes/
@@ -654,7 +671,7 @@ if __FILE__ == $0
   if opts[:prefixes]
     INSDC2RDF.new
   else
-    INSDC2RDF.new(ARGF, opts[:seqtype])
+    INSDC2RDF.new(ARGF, opts)
   end
 end
 
