@@ -219,11 +219,11 @@ class INSDC2RDF
   ###
 
   def new_region_uri(so, from, to, strand)
-    "entry:#{@entry.acc_version}#region:#{so}:#{from}-#{to}.#{strand}"
+    "entry:#{@entry.acc_version}#region:#{so}:#{from}-#{to}:#{strand}"
   end
 
   def new_position_uri(pos, strand)
-    "entry:#{@entry.acc_version}#position:#{pos}.#{strand}"
+    "entry:#{@entry.acc_version}#position:#{pos}:#{strand}"
   end
 
   def new_location(pos, feature_type = {:id => "SO:0000001", :term => "region"})
