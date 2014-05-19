@@ -218,6 +218,10 @@ class INSDC2RDF
   ### FALDO http://biohackathon.org/faldo
   ###
 
+  def new_feature_uri(so, from, to, strand)
+    "entry:#{@entry.acc_version}#feature:#{so}:#{from}-#{to}:#{strand}"
+  end
+
   def new_region_uri(so, from, to, strand)
     "entry:#{@entry.acc_version}#region:#{so}:#{from}-#{to}:#{strand}"
   end
@@ -493,11 +497,13 @@ class INSDC2RDF
   ### Genes
   ###
 
+  # parse genes first to collect gene IDs for mRNA, CDS etc. (then parse rest of features)
   def parse_genes
     genes = @features.select {|x| x.feature == "gene"}
   
     genes.each do |gene|
-      gene_id = new_uuid
+      locations = Bio::Locations.new(gene.position)
+      gene_id = new_feature_uri(@ft_so.so_id("gene"), locations.first.from, locations.last.to, locations.first.strand)
       hash = gene.to_hash
 
       puts triple(gene_id, "rdf:type", @ft_so.obo_id("gene")) + "  # SO:gene"
@@ -530,10 +536,10 @@ class INSDC2RDF
     features = @features.select {|x| x.feature != "gene" }
 
     features.each do |feat|
-      feature_id = new_uuid
-      hash = feat.to_hash
-
       feature = feat.feature
+      locations = Bio::Locations.new(feat.position)
+      feature_id = new_feature_uri(@ft_so.so_id(feature), locations.first.from, locations.last.to, locations.first.strand)
+
       @feature_count[feature] += 1
 
       so_id = "SO:0000001"
@@ -547,6 +553,7 @@ class INSDC2RDF
       puts triple(feature_id, "rdf:type", @ft_so.obo_id(feature)) + "  # SO:#{so_term}"
 
       # try to link gene-related features (CDS, mRNA etc.) by matching /locus_tag or /gene qualifier values
+      hash = feat.to_hash
       gene_id = locus_tag = gene = nil
       if hash["locus_tag"]
         if locus_tag = hash["locus_tag"].first
