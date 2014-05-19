@@ -102,6 +102,12 @@ class FT_SO
       "ft_desc" => "noncoding RNA",
       "so_desc" => "An RNA transcript that does not encode for a protein rather the RNA molecule is the gene product."
     }
+    @data["tmRNA"] = {
+      "so_id" => "SO:0000584",
+      "so_term" => "tmRNA",
+      "ft_desc" => "transfer messenger RNA; tmRNA acts as a tRNA first, and then as an mRNA that encodes a peptide tag; the ribosome translates this mRNA region of tmRNA and attaches the encoded peptide tag to the C-terminus of the unfinished protein; this attached tag targets the protein for destruction or proteolysis",
+      "so_desc" => "A tmRNA liberates a mRNA from a stalled ribosome. To accomplish this part of the tmRNA is used as a reading frame that ends in a translation stop signal. The broken mRNA is replaced in the ribosome by the tmRNA and translation of the tmRNA leads to addition of a proteolysis tag to the incomplete protein enabling recognition by a protease. Recently a number of permuted tmRNAs genes have been found encoded in two parts. TmRNAs have been identified in eubacteria and some chloroplasts but are absent from archeal and Eukaryote nuclear genomes."
+    }
   end
 
   # ftso = FT_SO.new
@@ -212,8 +218,8 @@ class INSDC2RDF
   ### FALDO http://biohackathon.org/faldo
   ###
 
-  def new_region_uri(so, from, to)
-    "entry:#{@entry.acc_version}#region:#{so}:#{from}-#{to}"
+  def new_region_uri(so, from, to, strand)
+    "entry:#{@entry.acc_version}#region:#{so}:#{from}-#{to}.#{strand}"
   end
 
   def new_position_uri(pos, strand)
@@ -228,11 +234,7 @@ class INSDC2RDF
 
     pos_begin =	new_position_uri(min, @locations.first.strand)
     pos_end = new_position_uri(max, @locations.last.strand)
-    if strand > 0
-      loc_id = new_region_uri(feature_type[:id], min, max)
-    else
-      loc_id = new_region_uri(feature_type[:id], max, min)
-    end
+    loc_id = new_region_uri(feature_type[:id], min, max, strand)
 
     puts triple(loc_id, "insdc:location", quote(pos))
     puts triple(loc_id, "rdf:type", "faldo:Region")
@@ -253,11 +255,7 @@ class INSDC2RDF
     if feature_type[:term] == "exon"
       @locations.each do |loc|
         subpart_id = new_uuid
-        if loc.strand > 0
-          exon_id = new_region_uri(feature_type[:id], loc.from, loc.to)
-        else
-          exon_id = new_region_uri(feature_type[:id], loc.to, loc.from)
-        end
+        exon_id = new_region_uri(feature_type[:id], loc.from, loc.to, loc.strand)
         subpart_begin = new_position_uri(loc.from, loc.strand)
         subpart_end = new_position_uri(loc.to, loc.strand)
 
@@ -265,7 +263,7 @@ class INSDC2RDF
         puts triple(subpart_id, "sio:SIO_000300", count)    # sio:has-value
         puts triple(subpart_id, "sio:SIO_000628", exon_id)   # sio:referes-to
 
-        puts triple(subpart_id, "rdf:type", subpart_type[:id]) + "  # #{subpart_type[:term]}"
+        puts triple(subpart_id, "rdf:type", feature_type[:id]) + "  # #{feature_type[:term]}"
         puts triple(subpart_id, "rdf:type", "faldo:Region")
         puts triple(subpart_id, "faldo:begin", subpart_begin)
         puts triple(subpart_id, "faldo:end", subpart_end)
