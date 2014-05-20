@@ -1,392 +1,506 @@
 {
-  "-": {
-    "so_id": "SO:0000110",
-    "so_term": "located_sequence_feature",
-    "ft_desc": "\"-\" is a placeholder for no key; should be used when the need is merely to mark region in order to comment on it or to use it in another feature's location",
-    "so_desc": "A biological feature that can be attributed to a region of biological sequence."
+  "C_region": {
+    "so_id": "SO:0001834",
+    "so_term": "C_region",
+    "ft_desc": "constant region of immunoglobulin light and heavy  chains, and T-cell receptor alpha, beta, and gamma  chains; includes one or more exons depending on the  particular chain",
+    "so_desc": "The constant region of an immunoglobulin polypeptide sequence.",
+    "mapping": "skos:broadMatch"
+  },
+  "J_segment": {
+    "so_id": "SO:0000470",
+    "so_term": "J_gene_segment",
+    "ft_desc": "joining segment of immunoglobulin light and heavy  chains, and T-cell receptor alpha, beta, and gamma  chains;  ",
+    "so_desc": "Germline genomic DNA of an immunoglobulin/T-cell receptor gene including  J-region with 5' UTR (SO:0000204) and 3' UTR (SO:0000205), also  designated as J-segment.",
+    "mapping": "skos:broadMatch"
+  },
+  "N_region": {
+    "so_id": "SO:0001835",
+    "so_term": "N_region",
+    "ft_desc": "extra nucleotides inserted between rearranged  immunoglobulin segments.",
+    "so_desc": "Extra nucleotides inserted between rearranged immunoglobulin segments.",
+    "mapping": "skos:broadMatch"
+  },
+  "RBS": {
+    "so_id": "SO:0000139",
+    "so_term": "ribosome_entry_site",
+    "ft_desc": "ribosome binding site;",
+    "so_desc": "Region in mRNA where ribosome assembles.",
+    "mapping": "skos:broadMatch"
+  },
+  "S_region": {
+    "so_id": "SO:0001836",
+    "so_term": "S_region",
+    "ft_desc": "switch region of immunoglobulin heavy chains;   involved in the rearrangement of heavy chain DNA leading  to the expression of a different immunoglobulin class  from the same B-cell;",
+    "so_desc": "The switch region of immunoglobulin heavy chains; it is involved in the  rearrangement of heavy chain DNA leading to the expression of a  different immunoglobulin classes from the same B-cell.",
+    "mapping": "skos:broadMatch"
+  },
+  "V_region": {
+    "so_id": "SO:0001833",
+    "so_term": "V_region",
+    "ft_desc": "variable region of immunoglobulin light and heavy chains, and T-cell receptor alpha, beta, and gamma chains;  codes for the variable amino terminal portion; can be composed of V_segments, D_segments, N_regions, and J_segments;",
+    "so_desc": "The variable region of an immunoglobulin polypeptide sequence.",
+    "mapping": "skos:broadMatch"
+  },
+  "V_segment": {
+    "so_id": "SO:0000466",
+    "so_term": "V_gene_segment",
+    "ft_desc": "variable segment of immunoglobulin light and heavy chains, and T-cell receptor alpha, beta, and gamma chains; codes for most of the variable region (V_region) and the last few amino acids of the leader peptide;",
+    "so_desc": "Germline genomic DNA including L-part1, V-intron and V-exon, with the 5' UTR and 3' UTR.",
+    "mapping": "skos:broadMatch"
+  },
+  "source": {
+    "so_id": "SO:2000061",
+    "so_term": "databank_entry",
+    "ft_desc": "identifies the biological source of the specified span of the sequence; this key is mandatory; more than one source key per sequence is allowed; every entry/record will have, as a minimum, either a single source key spanning the  entire sequence or multiple source keys which together  span the entire sequence. /mol_type=\"genomic DNA\", \"genomic RNA\", \"mRNA\",  \"tRNA\", \"rRNA\", \"snoRNA\", \"snRNA\", \"scRNA\", \"pre-RNA\", \"other RNA\", \"other DNA\",  \"unassigned DNA\", \"unassigned RNA\"",
+    "so_desc": "The sequence referred to by an entry in a databank such as Genbank or SwissProt.",
+    "mapping": "skos:broadMatch"
+  },
+  "assembly_gap": {
+    "so_id": "SO:0000730",
+    "so_term": "gap",
+    "ft_desc": "gap between two components of a CON record that is part of a genome assembly;",
+    "so_desc": "A gap in the sequence of known length. The unknown bases are filled in with N's.",
+    "mapping": "skos:broadMatch"
   },
   "-10_signal": {
     "so_id": "SO:0000175",
     "so_term": "minus_10_signal",
-    "ft_desc": "Pribnow box; a conserved region about 10 bp upstream of the start point of bacterial transcription units which may be involved in binding RNA polymerase; consensus=TAtAaT [1,2,3,4]",
-    "so_desc": "A conserved region about 10-bp upstream of the start point of bacterial transcription units which may be involved in binding RNA polymerase; consensus=TAtAaT."
+    "ft_desc": "Pribnow box; a conserved region about 10 bp upstream of the start point of bacterial transcription units which may be involved in  binding RNA polymerase; consensus=TAtAaT [1,2,3,4];",
+    "so_desc": "A conserved region about 10-bp upstream of the start point of bacterial transcription units which may be involved in binding RNA polymerase; consensus=TAtAaT.",
+    "mapping": "skos:exactMatch"
   },
   "-35_signal": {
     "so_id": "SO:0000176",
     "so_term": "minus_35_signal",
-    "ft_desc": "a conserved hexamer about 35 bp upstream of the start point of bacterial transcription units; consensus=TTGACa or TGTTGACA",
-    "so_desc": "A conserved hexamer about 35-bp upstream of the start point of bacterial transcription units; consensus=TTGACa or TGTTGACA."
+    "ft_desc": "a conserved hexamer about 35 bp upstream of the start point of bacterial transcription units; consensus=TTGACa or TGTTGACA;",
+    "so_desc": "A conserved hexamer about 35-bp upstream of the start point of bacterial transcription units; consensus=TTGACa or TGTTGACA.",
+    "mapping": "skos:exactMatch"
   },
   "3'UTR": {
     "so_id": "SO:0000205",
     "so_term": "three_prime_UTR",
-    "ft_desc": "region at the 3' end of a mature transcript (following the stop codon) that is not translated into a protein",
-    "so_desc": "A region at the 3' end of a mature transcript (following the stop codon) that is not translated into a protein."
-  },
-  "3'clip": {
-    "so_id": "SO:0000557",
-    "so_term": "three_prime_clip",
-    "ft_desc": "3'-most region of a precursor transcript that is clipped off during processing",
-    "so_desc": "3'-most region of a precursor transcript that is clipped off during processing."
+    "ft_desc": "region at the 3' end of a mature transcript (following  the stop codon) that is not translated into a protein;",
+    "so_desc": "A region at the 3' end of a mature transcript (following the stop codon) that is not translated into a protein.",
+    "mapping": "skos:exactMatch"
   },
   "5'UTR": {
     "so_id": "SO:0000204",
     "so_term": "five_prime_UTR",
-    "ft_desc": "region at the 5' end of a mature transcript (preceding the initiation codon) that is not translated into a protein",
-    "so_desc": "A region at the 5' end of a mature transcript (preceding the initiation codon) that is not translated into a protein."
-  },
-  "5'clip": {
-    "so_id": "SO:0000555",
-    "so_term": "five_prime_clip",
-    "ft_desc": "5'-most region of a precursor transcript that is clipped off during processing",
-    "so_desc": "5' most region of a precursor transcript that is clipped off during processing."
+    "ft_desc": "region at the 5' end of a mature transcript (preceding  the initiation codon) that is not translated into a  protein;",
+    "so_desc": "A region at the 5' end of a mature transcript (preceding the initiation codon) that is not translated into a protein.",
+    "mapping": "skos:exactMatch"
   },
   "CAAT_signal": {
     "so_id": "SO:0000172",
     "so_term": "CAAT_signal",
-    "ft_desc": "CAAT box; part of a conserved sequence located about 75 bp up-stream of the start point of eukaryotic transcription units which may be involved in RNA polymerase binding; consensus=GG(C or T)CAATCT [1,2]",
-    "so_desc": "Part of a conserved sequence located about 75-bp upstream of the start point of eukaryotic transcription units which may be involved in RNA polymerase binding; consensus=GG(C|T)CAATCT."
+    "ft_desc": "CAAT box; part of a conserved sequence located about 75 bp up-stream of the start point of eukaryotic transcription units which may be involved in RNA polymerase binding; consensus=GG(C or T)CAATCT [1,2].",
+    "so_desc": "Part of a conserved sequence located about 75-bp upstream of the start point of eukaryotic transcription units which may be involved in RNA polymerase binding; consensus=GG(C|T)CAATCT.",
+    "mapping": "skos:exactMatch"
   },
   "CDS": {
     "so_id": "SO:0000316",
     "so_term": "CDS",
-    "ft_desc": "coding sequence; sequence of nucleotides that corresponds with the sequence of amino acids in a protein (location includes stop codon); feature includes amino acid conceptual translation",
-    "so_desc": "A contiguous sequence which begins with, and includes, a start codon and ends with, and includes, a stop codon."
-  },
-  "C_region": {
-    "so_id": "undefined",
-    "so_term": "undefined",
-    "ft_desc": "constant region of immunoglobulin light and heavy chains, and T-cell receptor alpha, beta, and gamma chains; includes one or more exons depending on the particular chain",
-    "so_desc": "undefined"
+    "ft_desc": "coding sequence; sequence of nucleotides that corresponds with the sequence of amino acids in a protein (location includes stop codon);  feature includes amino acid conceptual translation.",
+    "so_desc": "A contiguous sequence which begins with, and includes, a start codon and ends with, and includes, a stop codon.",
+    "mapping": "skos:exactMatch"
   },
   "D-loop": {
     "so_id": "SO:0000297",
     "so_term": "D_loop",
     "ft_desc": "displacement loop; a region within mitochondrial DNA in which a short stretch of RNA is paired with one strand of DNA, displacing the original partner DNA strand in this region; also used to describe the displacement of a region of one strand of duplex DNA by a single stranded invader in the reaction catalyzed by RecA protein",
-    "so_desc": "Displacement loop; a region within mitochondrial DNA in which a short stretch of RNA is paired with one strand of DNA, displacing the original partner DNA strand in this region; also used to describe the displacement of a region of one strand of duplex DNA by a single stranded invader in the reaction catalyzed by RecA protein."
+    "so_desc": "Displacement loop; a region within mitochondrial DNA in which a short stretch of RNA is paired with one strand of DNA, displacing the original partner DNA strand in this region; also used to describe the displacement of a region of one strand of duplex DNA by a single stranded invader in the reaction catalyzed by RecA protein.",
+    "mapping": "skos:exactMatch"
   },
   "D_segment": {
     "so_id": "SO:0000458",
-    "so_term": "D_gene",
-    "ft_desc": "Diversity segment of immunoglobulin heavy chain, and T-cell receptor beta chain",
-    "so_desc": "germline genomic DNA including D-region with 5' UTR and 3' UTR, also designated as D-segment."
-  },
-  "GC_signal": {
-    "so_id": "SO:0000173",
-    "so_term": "GC_rich_region",
-    "ft_desc": "GC box; a conserved GC-rich region located upstream of the start point of eukaryotic transcription units which may occur in multiple copies or in either orientation; consensus=GGGCGG",
-    "so_desc": "A conserved GC-rich region located upstream of the start point of eukaryotic transcription units which may occur in multiple copies or in either orientation; consensus=GGGCGG."
-  },
-  "J_segment": {
-    "so_id": "undefined",
-    "so_term": "undefined",
-    "ft_desc": "joining segment of immunoglobulin light and heavy chains, and T-cell receptor alpha, beta, and gamma chains",
-    "so_desc": "undefined"
+    "so_term": "D_gene_segment",
+    "ft_desc": "Diversity segment of immunoglobulin heavy chain, and  T-cell receptor beta chain;  ",
+    "so_desc": "germline genomic DNA including D-region with 5' UTR and 3' UTR, also designated as D-segment.",
+    "mapping": "skos:exactMatch"
   },
   "LTR": {
     "so_id": "SO:0000286",
     "so_term": "long_terminal_repeat",
-    "ft_desc": "long terminal repeat, a sequence directly repeated at both ends of a defined sequence, of the sort typically found in retroviruses",
-    "so_desc": "A sequence directly repeated at both ends of a defined sequence, of the sort typically found in retroviruses."
-  },
-  "N_region": {
-    "so_id": "undefined",
-    "so_term": "undefined",
-    "ft_desc": "extra nucleotides inserted between rearranged immunoglobulin segments.",
-    "so_desc": "undefined"
-  },
-  "RBS": {
-    "so_id": "SO:0000139",
-    "so_term": "ribosome_entry_site",
-    "ft_desc": "ribosome binding site",
-    "so_desc": "Region in mRNA where ribosome assembles."
+    "ft_desc": "long terminal repeat, a sequence directly repeated at both ends of a defined sequence, of the sort typically found in retroviruses;",
+    "so_desc": "A sequence directly repeated at both ends of a defined sequence, of the sort typically found in retroviruses.",
+    "mapping": "skos:exactMatch"
   },
   "STS": {
     "so_id": "SO:0000331",
     "so_term": "STS",
-    "ft_desc": "sequence tagged site; short, single-copy DNA sequence that characterizes a mapping landmark on the genome and can be detected by PCR; a region of the genome can be mapped by determining the order of a series of STSs",
-    "so_desc": "Short (typically a few hundred base pairs) DNA sequence that has a single occurrence in a genome and whose location and base sequence are known."
-  },
-  "S_region": {
-    "so_id": "undefined",
-    "so_term": "undefined",
-    "ft_desc": "switch region of immunoglobulin heavy chains; involved in the rearrangement of heavy chain DNA leading to the expression of a different immunoglobulin class from the same B-cell",
-    "so_desc": "undefined"
-  },
-  "TATA_signal": {
-    "so_id": "SO:0000174",
-    "so_term": "TATA_box",
-    "ft_desc": "TATA box; Goldberg-Hogness box; a conserved AT-rich septamer found about 25 bp before the start point of each eukaryotic RNA polymerase II transcript unit which may be involved in positioning the enzyme for correct initiation; consensus=TATA(A or T)A(A or T) [1,2]",
-    "so_desc": "A conserved AT-rich septamer found about 25-bp before the start point of many eukaryotic RNA polymerase II transcript units; may be involved in positioning the enzyme for correct initiation; consensus=TATA(A|T)A(A|T)."
-  },
-  "V_region": {
-    "so_id": "undefined",
-    "so_term": "undefined",
-    "ft_desc": "variable region of immunoglobulin light and heavy chains, and T-cell receptor alpha, beta, and gamma chains; codes for the variable amino terminal portion; can be composed of V_segments, D_segments, N_regions, and J_segments",
-    "so_desc": "undefined"
-  },
-  "V_segment": {
-    "so_id": "undefined",
-    "so_term": "undefined",
-    "ft_desc": "variable segment of immunoglobulin light and heavy chains, and T-cell receptor alpha, beta, and gamma chains; codes for most of the variable region (V_region) and the last few amino acids of the leader peptide",
-    "so_desc": "undefined"
+    "ft_desc": "sequence tagged site; short, single-copy DNA sequence that characterizes a mapping landmark on the genome and can be detected by PCR; a region of the genome can be mapped by determining the order of a series of STSs;",
+    "so_desc": "Short (typically a few hundred base pairs) DNA sequence that has a single occurrence in a genome and whose location and base sequence are known.",
+    "mapping": "skos:exactMatch"
   },
   "attenuator": {
     "so_id": "SO:0000140",
     "so_term": "attenuator",
     "ft_desc": "1) region of DNA at which regulation of termination of transcription occurs, which controls the expression of some bacterial operons; 2) sequence segment located between the promoter and the first structural gene that causes partial termination of transcription",
-    "so_desc": "A sequence segment located between the promoter and a structural gene that causes partial termination of transcription."
-  },
-  "conflict": {
-    "so_id": "undefined",
-    "so_term": "undefined",
-    "ft_desc": "independent determinations of the \"same\" sequence differ at this site or region; Or /compare=[accession-number.sequence-version]",
-    "so_desc": "undefined"
+    "so_desc": "A sequence segment located between the promoter and a structural gene that causes partial termination of transcription.",
+    "mapping": "skos:exactMatch"
   },
   "enhancer": {
     "so_id": "SO:0000165",
     "so_term": "enhancer",
-    "ft_desc": "a cis-acting sequence that increases the utilization of (some) eukaryotic promoters, and can function in either orientation and in any location (upstream or downstream) relative to the promoter",
-    "so_desc": "A cis-acting sequence that increases the utilization of (some) eukaryotic promoters, and can function in either orientation and in any location (upstream or downstream) relative to the promoter."
+    "ft_desc": "a cis-acting sequence that increases the utilization of (some)  eukaryotic promoters, and can function in either orientation and in any location (upstream or downstream) relative to the promoter;",
+    "so_desc": "A cis-acting sequence that increases the utilization of (some) eukaryotic promoters, and can function in either orientation and in any location (upstream or downstream) relative to the promoter.",
+    "mapping": "skos:exactMatch"
   },
   "exon": {
     "so_id": "SO:0000147",
     "so_term": "exon",
-    "ft_desc": "region of genome that codes for portion of spliced mRNA, rRNA and tRNA; may contain 5'UTR, all CDSs and 3' UTR",
-    "so_desc": "A region of the genome that codes for portion of spliced messenger RNA (SO:0000234); may contain 5'-untranslated region (SO:0000204), all open reading frames (SO:0000236) and 3'-untranslated region (SO:0000205)."
+    "ft_desc": "region of genome that codes for portion of spliced mRNA,  rRNA and tRNA; may contain 5'UTR, all CDSs and 3' UTR; ",
+    "so_desc": "A region of the genome that codes for portion of spliced messenger RNA (SO:0000234); may contain 5'-untranslated region (SO:0000204), all open reading frames (SO:0000236) and 3'-untranslated region (SO:0000205).",
+    "mapping": "skos:exactMatch"
   },
   "gap": {
     "so_id": "SO:0000730",
     "so_term": "gap",
     "ft_desc": "gap in the sequence",
-    "so_desc": "A gap in the sequence of known length. THe unkown bases are filled in with N's."
+    "so_desc": "A gap in the sequence of known length. THe unkown bases are filled in with N's.",
+    "mapping": "skos:exactMatch"
   },
   "gene": {
     "so_id": "SO:0000704",
     "so_term": "gene",
-    "ft_desc": "region of biological interest identified as a gene and for which a name has been assigned",
-    "so_desc": "A locatable region of genomic sequence, corresponding to a unit of inheritance, which is associated with regulatory regions, transcribed regions and/or other functional sequence regions"
+    "ft_desc": "region of biological interest identified as a gene  and for which a name has been assigned;",
+    "so_desc": "A locatable region of genomic sequence, corresponding to a unit of inheritance, which is associated with regulatory regions, transcribed regions and/or other functional sequence regions",
+    "mapping": "skos:exactMatch"
   },
   "iDNA": {
     "so_id": "SO:0000723",
     "so_term": "iDNA",
-    "ft_desc": "intervening DNA; DNA which is eliminated through any of several kinds of recombination",
-    "so_desc": "Genomic sequence removed from the genome, as a normal event, by a process of recombination."
+    "ft_desc": "intervening DNA; DNA which is eliminated through any of several kinds of recombination;",
+    "so_desc": "Genomic sequence removed from the genome, as a normal event, by a process of recombination. ",
+    "mapping": "skos:exactMatch"
   },
   "intron": {
     "so_id": "SO:0000188",
     "so_term": "intron",
-    "ft_desc": "a segment of DNA that is transcribed, but removed from within the transcript by splicing together the sequences (exons) on either side of it",
-    "so_desc": "A segment of DNA that is transcribed, but removed from within the transcript by splicing together the sequences (exons) on either side of it."
+    "ft_desc": "a segment of DNA that is transcribed, but removed from within the transcript by splicing together the sequences (exons) on either side of it;",
+    "so_desc": "A segment of DNA that is transcribed, but removed from within the transcript by splicing together the sequences (exons) on either side of it.",
+    "mapping": "skos:exactMatch"
   },
   "mRNA": {
     "so_id": "SO:0000234",
     "so_term": "mRNA",
-    "ft_desc": "messenger RNA; includes 5'untranslated region (5'UTR), coding sequences (CDS, exon) and 3'untranslated region (3'UTR)",
-    "so_desc": "messenger RNA is the intermediate molecule between DNA and protein. It includes UTR and coding sequences. It does not contain introns."
+    "ft_desc": "messenger RNA; includes 5'untranslated region (5'UTR), coding sequences (CDS, exon) and 3'untranslated region (3'UTR);",
+    "so_desc": "messenger RNA is the intermediate molecule between DNA and protein. It  includes UTR and coding sequences. It does not contain introns. ",
+    "mapping": "skos:exactMatch"
   },
   "mat_peptide": {
     "so_id": "SO:0000419",
     "so_term": "mature_peptide",
-    "ft_desc": "mature peptide or protein coding sequence; coding sequence for the mature or final peptide or protein product following post-translational modification; the location does not include the stop codon (unlike the corresponding CDS)",
-    "so_desc": "The coding sequence for the mature or final peptide or protein product following post-translational modification."
-  },
-  "misc_RNA": {
-    "so_id": "SO:0000673",
-    "so_term": "transcript",
-    "ft_desc": "any transcript or RNA product that cannot be defined by other RNA keys (prim_transcript, precursor_RNA, mRNA, 5'clip, 3'clip, 5'UTR, 3'UTR, exon, CDS, sig_peptide, transit_peptide, mat_peptide, intron, polyA_site, rRNA, tRNA, scRNA, and snRNA)",
-    "so_desc": "An RNA synthesized on a DNA or RNA template by an RNA polymerase."
-  },
-  "misc_binding": {
-    "so_id": "SO:0000409",
-    "so_term": "binding_site",
-    "ft_desc": "site in nucleic acid which covalently or non-covalently binds another moiety that cannot be described by any other binding key (primer_bind or protein_bind)",
-    "so_desc": "A region on the surface of a molecule that may interact with another molecule."
-  },
-  "misc_difference": {
-    "so_id": "SO:0000413",
-    "so_term": "sequence_difference",
-    "ft_desc": "feature sequence is different from that presented in the entry and cannot be described by any other Difference key (conflict, unsure, old_sequence, variation, or modified_base)",
-    "so_desc": "A region where the sequences differs from that of a specified sequence."
-  },
-  "misc_feature": {
-    "so_id": "SO:0000001",
-    "so_term": "region",
-    "ft_desc": "region of biological interest which cannot be described by any other feature key; a new or rare feature",
-    "so_desc": "Continous sequence."
-  },
-  "misc_recomb": {
-    "so_id": "SO:0000298",
-    "so_term": "recombination_feature",
-    "ft_desc": "site of any generalized, site-specific or replicative recombination event where there is a breakage and reunion of duplex DNA that cannot be described by other recombination keys or qualifiers of source key (/insertion_seq, /transposon, /proviral)",
-    "so_desc": ""
-  },
-  "misc_signal": {
-    "so_id": "SO:0005836",
-    "so_term": "regulatory_region",
-    "ft_desc": "any region containing a signal controlling or altering gene function or expression that cannot be described by other signal keys (promoter, CAAT_signal, TATA_signal, -35_signal, -10_signal, GC_signal, RBS, polyA_signal, enhancer, attenuator, terminator, and rep_origin)",
-    "so_desc": "A DNA sequence that controls the expression of a gene."
-  },
-  "misc_structure": {
-    "so_id": "SO:0000002",
-    "so_term": "sequence_secondary_structure",
-    "ft_desc": "any secondary or tertiary nucleotide structure or conformation that cannot be described by other Structure keys (stem_loop and D-loop)",
-    "so_desc": "A folded sequence."
+    "ft_desc": "mature peptide or protein coding sequence; coding sequence for the mature or final peptide or protein product following post-translational modification; the location does not include the stop codon (unlike the corresponding CDS);",
+    "so_desc": "The coding sequence for the mature or final peptide or protein product following post-translational modification.",
+    "mapping": "skos:exactMatch"
   },
   "modified_base": {
     "so_id": "SO:0000305",
     "so_term": "modified_base_site",
-    "ft_desc": "the indicated nucleotide is a modified nucleotide and should be substituted for by the indicated molecule (given in the mod_base qualifier value",
-    "so_desc": "A modified nucleotide, i.e. a nucleotide other than A, T, C. G or (in RNA) U."
+    "ft_desc": "the indicated nucleotide is a modified nucleotide and should be substituted for by the indicated molecule (given in the mod_base qualifier value)",
+    "so_desc": "A modified nucleotide, i.e. a nucleotide other than A, T, C. G or (in RNA) U.",
+    "mapping": "skos:exactMatch"
+  },
+  "operon": {
+    "so_id": "SO:0000178",
+    "so_term": "operon",
+    "ft_desc": "region containing polycistronic transcript containing genes that encode enzymes that are  in the same metabolic pathway and regulatory sequences ",
+    "so_desc": "A group of contiguous genes transcribed as a single (polycistronic) mRNA from a single regulatory region. ",
+    "mapping": "skos:exactMatch"
+  },
+  "oriT": {
+    "so_id": "SO:0000724",
+    "so_term": "origin_of_transfer",
+    "ft_desc": "origin of transfer; region of a DNA molecule where  transfer is initiated during the process of conjugation  or mobilization",
+    "so_desc": "A region of a DNA molecule whre transfer is initiated during the process of conjugation or mobilization.",
+    "mapping": "skos:exactMatch"
+  },
+  "polyA_signal": {
+    "so_id": "SO:0000551",
+    "so_term": "polyA_signal_sequence",
+    "ft_desc": "recognition region necessary for endonuclease cleavage of an RNA transcript that is followed by polyadenylation; consensus=AATAAA [1];",
+    "so_desc": "The recognition sequence necessary for endonuclease cleavage of an RNA transcript that is followed by polyadenylation; consensus=AATAAA.",
+    "mapping": "skos:exactMatch"
+  },
+  "polyA_site": {
+    "so_id": "SO:0000553",
+    "so_term": "polyA_site",
+    "ft_desc": "site on an RNA transcript to which will be added adenine residues by post-transcriptional polyadenylation;",
+    "so_desc": "The site on an RNA transcript to which will be added adenine residues by post-transcriptional polyadenylation.",
+    "mapping": "skos:exactMatch"
+  },
+  "prim_transcript": {
+    "so_id": "SO:0000185",
+    "so_term": "primary_transcript",
+    "ft_desc": "primary (initial, unprocessed) transcript;  includes 5' clipped region (5'clip), 5' untranslated region (5'UTR), coding sequences (CDS, exon), intervening sequences (intron), 3' untranslated region (3'UTR), and 3' clipped region (3'clip);",
+    "so_desc": "The primary (initial, unprocessed) transcript; includes five_prime_clip (SO:0000555), five_prime_untranslated_region (SO:0000204), open reading frames (SO:0000236), introns (SO:0000188) and three_prime_ untranslated_region (three_prime_UTR), and three_prime_clip (SO:0000557).",
+    "mapping": "skos:exactMatch"
+  },
+  "primer_bind": {
+    "so_id": "SO:0005850",
+    "so_term": "primer_binding_site",
+    "ft_desc": "non-covalent primer binding site for initiation of replication, transcription, or reverse transcription; includes site(s) for synthetic e.g., PCR primer elements;",
+    "so_desc": "Non-covalent primer binding site for initiation of replication, transcription, or reverse transcription.  ",
+    "mapping": "skos:exactMatch"
+  },
+  "promoter": {
+    "so_id": "SO:0000167",
+    "so_term": "promoter",
+    "ft_desc": "region on a DNA molecule involved in RNA polymerase binding to initiate transcription;",
+    "so_desc": "The region on a DNA molecule involved in RNA polymerase binding to initiate transcription.",
+    "mapping": "skos:exactMatch"
+  },
+  "protein_bind": {
+    "so_id": "SO:0000410",
+    "so_term": "protein_binding_site",
+    "ft_desc": "non-covalent protein binding site on nucleic acid;",
+    "so_desc": "A region of a molecule that binds to a protein.",
+    "mapping": "skos:exactMatch"
+  },
+  "rRNA": {
+    "so_id": "SO:0000252",
+    "so_term": "rRNA",
+    "ft_desc": "mature ribosomal RNA ; RNA component of the ribonucleoprotein particle (ribosome) which assembles amino acids into proteins.",
+    "so_desc": "RNA that comprises part of a ribosome, and that can provide both structural scaffolding and catalytic activity.",
+    "mapping": "skos:exactMatch"
+  },
+  "repeat_region": {
+    "so_id": "SO:0000657",
+    "so_term": "repeat_region",
+    "ft_desc": "region of genome containing repeating units;",
+    "so_desc": "A region of sequence containing one or more repeat units.",
+    "mapping": "skos:exactMatch"
+  },
+  "sig_peptide": {
+    "so_id": "SO:0000418",
+    "so_term": "signal_peptide",
+    "ft_desc": "signal peptide coding sequence; coding sequence for an N-terminal domain of a secreted protein; this domain is involved in attaching nascent polypeptide to the membrane leader sequence;",
+    "so_desc": "The sequence for an N-terminal domain of a secreted protein; this domain is involved in attaching nascent polypeptide to the membrane leader sequence.",
+    "mapping": "skos:exactMatch"
+  },
+  "stem_loop": {
+    "so_id": "SO:0000313",
+    "so_term": "stem_loop",
+    "ft_desc": "hairpin; a double-helical region formed by base-pairing between adjacent (inverted) complementary sequences in a single strand of RNA or DNA. ",
+    "so_desc": "A double-helical region of nucleic acid formed by base-pairing between adjacent (inverted) complementary sequences.",
+    "mapping": "skos:exactMatch"
+  },
+  "tRNA": {
+    "so_id": "SO:0000253",
+    "so_term": "tRNA",
+    "ft_desc": "mature transfer RNA, a small RNA molecule (75-85 bases long) that mediates the translation of a nucleic acid sequence into an amino acid sequence;",
+    "so_desc": "Transfer RNA (tRNA) molecules are approximately 80 nucleotides in length. Their secondary structure includes four short double-helical elements and three loops (D, anti-codon, and T loops). Further hydrogen bonds mediate the characteristic L-shaped molecular structure. tRNAs have two regions of fundamental functional importance: the anti-codon, which is responsible for specific mRNA codon recognition, and the 3' end, to which the tRNA's corresponding amino acid is attached (by aminoacyl-tRNA synthetases). tRNAs cope with the degeneracy of the genetic code in two manners: having more than one tRNA (with a specific anti-codon) for a particular amino acid; and 'wobble' base-pairing, i.e. permitting non-standard base-pairing at the 3rd anti-codon position.",
+    "mapping": "skos:exactMatch"
+  },
+  "terminator": {
+    "so_id": "SO:0000141",
+    "so_term": "terminator",
+    "ft_desc": "sequence of DNA located either at the end of the transcript that causes RNA polymerase to terminate  transcription;",
+    "so_desc": "The sequence of DNA located either at the end of the transcript that causes RNA polymerase to terminate transcription.",
+    "mapping": "skos:exactMatch"
+  },
+  "transit_peptide": {
+    "so_id": "SO:0000725",
+    "so_term": "transit_peptide",
+    "ft_desc": "transit peptide coding sequence; coding sequence for an N-terminal domain of a nuclear-encoded organellar protein; this domain is involved in post-translational import of the protein into the organelle;",
+    "so_desc": "The coding sequence for an N-terminal domain of a nuclear-encoded organellar protein: this domain is involved in post translational import of the protein into the organelle. ",
+    "mapping": "skos:exactMatch"
+  },
+  "variation": {
+    "so_id": "SO:0000109",
+    "so_term": "sequence_variant",
+    "ft_desc": "a related strain contains stable mutations from the same gene (e.g., RFLPs, polymorphisms, etc.) which differ from the presented sequence at this location (and possibly others);",
+    "so_desc": "A region of sequence where variation has been observed.",
+    "mapping": "skos:exactMatch"
+  },
+  "telomere": {
+    "so_id": "SO:0000624",
+    "so_term": "telomere",
+    "ft_desc": "A specific structure at the end of a linear chromosome, required for the integrity and maintenance of the end.",
+    "so_desc": "region of biological interest identified as a telomere and which has been experimentally characterized;",
+    "mapping": "skos:exactMatch"
+  },
+  "tmRNA": {
+    "so_id": "SO:0000584",
+    "so_term": "tmRNA",
+    "ft_desc": "transfer messenger RNA; tmRNA acts as a tRNA first, and then as an mRNA that encodes a peptide tag; the ribosome translates this mRNA region of tmRNA and attaches the encoded peptide tag to the C-terminus of the unfinished protein; this attached tag targets the protein for destruction or proteolysis;",
+    "so_desc": "A tmRNA liberates a mRNA from a stalled ribosome. To accomplish this  part of the tmRNA is used as a reading frame that ends in a translation  stop signal. The broken mRNA is replaced in the ribosome by the tmRNA  and translation of the tmRNA leads to addition of a proteolysis tag to  the incomplete protein enabling recognition by a protease. Recently a  number of permuted tmRNAs genes have been found encoded in two parts.  TmRNAs have been identified in eubacteria and some chloroplasts but are  absent from archeal and Eukaryote nuclear genomes.",
+    "mapping": "skos:exactMatch"
+  },
+  "ncRNA": {
+    "so_id": "SO:0000655",
+    "so_term": "ncRNA",
+    "ft_desc": "a non-protein-coding gene, other than ribosomal RNA and transfer RNA, the functional molecule of which is the RNA transcript;",
+    "so_desc": "An RNA transcript that does not encode for a protein rather the RNA molecule is the gene product.",
+    "mapping": "skos:exactMatch"
+  },
+  "centromere": {
+    "so_id": "SO:0000577",
+    "so_term": "centromere",
+    "ft_desc": "region of biological interest identified as a centromere and which has been experimentally characterized;",
+    "so_desc": "A region of chromosome where the spindle fibers attach during mitosis and meiosis.",
+    "mapping": "skos:exactMatch"
+  },
+  "rep_origin": {
+    "so_id": "SO:0000296",
+    "so_term": "origin_of_replication",
+    "ft_desc": "origin of replication; starting site for duplication of nucleic acid to give two identical copies; ",
+    "so_desc": "The origin of replication; starting site for duplication of a nucleic acid molecule to give two identical copies.",
+    "mapping": "skos:exactMatch"
+  },
+  "mobile_element": {
+    "so_id": "SO:0001037",
+    "so_term": "mobile_genetic_element",
+    "ft_desc": "region of genome containing mobile elements;",
+    "so_desc": "A nucleotide region with either intra-genome or intracellular moblity,  of varying length, which often carry the information necessary for  transfer and recombination with the host genome.",
+    "mapping": "skos:exactMatch"
+  },
+  "precursor_RNA": {
+    "so_id": "SO:0000185",
+    "so_term": "primary_transcript",
+    "ft_desc": "any RNA species that is not yet the mature RNA product; may include 5' clipped region (5'clip), 5' untranslated region (5'UTR), coding sequences (CDS, exon), intervening sequences (intron), 3' untranslated region (3'UTR), and 3' clipped region (3'clip);",
+    "so_desc": "The primary (initial, unprocessed) transcript; includes five_prime_clip (SO:0000555), five_prime_untranslated_region (SO:0000204), open reading frames (SO:0000236), introns (SO:0000188) and three_prime_ untranslated_region (three_prime_UTR), and three_prime_clip (SO:0000557).",
+    "mapping": "skos:narrorMatch"
+  },
+  "GC_signal": {
+    "so_id": "SO:0000173",
+    "so_term": "GC_rich_region",
+    "ft_desc": "GC box; a conserved GC-rich region located upstream of the start point of eukaryotic transcription units which may occur in multiple copies or in either orientation; consensus=GGGCGG;",
+    "so_desc": "A conserved GC-rich region located upstream of the start point of eukaryotic transcription units which may occur in multiple copies or in either orientation; consensus=GGGCGG.",
+    "mapping": "skos:narrorMatch "
+  },
+  "TATA_signal": {
+    "so_id": "SO:0000174",
+    "so_term": "TATA_box",
+    "ft_desc": "TATA box; Goldberg-Hogness box; a conserved AT-rich septamer found about 25 bp before the start point of each eukaryotic RNA polymerase II  transcript  unit which may be involved in positioning the enzyme  for correct  initiation; consensus=TATA(A or T)A(A or T) [1,2];",
+    "so_desc": "A conserved AT-rich septamer found about 25-bp before the start point of many eukaryotic RNA polymerase II transcript units; may be involved in positioning the enzyme for correct initiation; consensus=TATA(A|T)A(A|T).",
+    "mapping": "skos:narrorMatch "
+  },
+  "misc_RNA": {
+    "so_id": "SO:0000673",
+    "so_term": "transcript",
+    "ft_desc": "any transcript or RNA product that cannot be defined by other RNA keys (prim_transcript, precursor_RNA, mRNA, 5'clip, 3'clip, 5'UTR, 3'UTR, exon, CDS, sig_peptide, transit_peptide, mat_peptide, intron, polyA_site, rRNA, tRNA, scRNA, and snRNA);",
+    "so_desc": "An RNA synthesized on a DNA or RNA template by an RNA polymerase.",
+    "mapping": "skos:narrorMatch "
+  },
+  "misc_binding": {
+    "so_id": "SO:0000409",
+    "so_term": "binding_site",
+    "ft_desc": "site in nucleic acid which covalently or non-covalently binds another moiety that cannot be described by any other binding key (primer_bind or protein_bind);",
+    "so_desc": "A region on the surface of a molecule that may interact with another molecule.",
+    "mapping": "skos:narrorMatch "
+  },
+  "misc_difference": {
+    "so_id": "SO:0000413",
+    "so_term": "sequence_difference",
+    "ft_desc": "feature sequence is different from that presented  in the entry and cannot be described by any other  Difference key (conflict, unsure, old_sequence,  variation, or modified_base);",
+    "so_desc": "A region where the sequences differs from that of a specified sequence.",
+    "mapping": "skos:narrorMatch "
+  },
+  "misc_feature": {
+    "so_id": "SO:0000001",
+    "so_term": "region",
+    "ft_desc": "region of biological interest which cannot be described by any other feature key; a new or rare feature;",
+    "so_desc": "Continous sequence.",
+    "mapping": "skos:narrorMatch "
+  },
+  "misc_recomb": {
+    "so_id": "SO:0000298",
+    "so_term": "recombination_feature",
+    "ft_desc": "site of any generalized, site-specific or replicative recombination event where there is a breakage and reunion of duplex DNA that cannot be described by other recombination keys or qualifiers of source key  (/insertion_seq, /transposon, /proviral);",
+    "so_desc": "",
+    "mapping": "skos:narrorMatch "
+  },
+  "misc_signal": {
+    "so_id": "SO:0005836",
+    "so_term": "regulatory_region",
+    "ft_desc": "any region containing a signal controlling or altering gene function or expression that cannot be described by other signal keys (promoter, CAAT_signal, TATA_signal, -35_signal, -10_signal, GC_signal, RBS, polyA_signal, enhancer, attenuator, terminator, and rep_origin).",
+    "so_desc": "A DNA sequence that controls the expression of a gene.",
+    "mapping": "skos:narrorMatch "
+  },
+  "misc_structure": {
+    "so_id": "SO:0000002",
+    "so_term": "sequence_secondary_structure",
+    "ft_desc": "any secondary or tertiary nucleotide structure or  conformation that cannot be described by other Structure keys (stem_loop and D-loop);",
+    "so_desc": "A folded sequence.",
+    "mapping": "skos:narrorMatch "
+  },
+  "-": {
+    "so_id": "SO:0000110",
+    "so_term": "located_sequence_feature",
+    "ft_desc": "- is a placeholder for no key;  should be used when the need is merely to mark  region in order to comment on it or to use it in another feature's location;",
+    "so_desc": "A biological feature that can be attributed to a region of biological sequence.",
+    "mapping": ""
+  },
+  "3'clip": {
+    "so_id": "SO:0000557",
+    "so_term": "three_prime_clip",
+    "ft_desc": "3'-most region of a precursor transcript that is clipped off during processing;",
+    "so_desc": "3'-most region of a precursor transcript that is clipped off during processing.",
+    "mapping": ""
+  },
+  "5'clip": {
+    "so_id": "SO:0000555",
+    "so_term": "five_prime_clip",
+    "ft_desc": "5'-most region of a precursor transcript that is clipped off during processing;",
+    "so_desc": "5' most region of a precursor transcript that is clipped off during processing.",
+    "mapping": ""
+  },
+  "conflict": {
+    "so_id": "",
+    "so_term": "undefined",
+    "ft_desc": "independent determinations of the \"same\" sequence differ at this site or region; Or /compare=[accession-number.sequence-version]",
+    "so_desc": "",
+    "mapping": ""
   },
   "old_sequence": {
     "so_id": "undefined",
     "so_term": "undefined",
     "ft_desc": "the presented sequence revises a previous version of the sequence at this location; Or /compare=[accession-number.sequence-version]",
-    "so_desc": "undefined"
-  },
-  "operon": {
-    "so_id": "SO:0000178",
-    "so_term": "operon",
-    "ft_desc": "region containing polycistronic transcript containing genes that encode enzymes that are in the same metabolic pathway and regulatory sequence",
-    "so_desc": "A group of contiguous genes transcribed as a single (polycistronic) mRNA from a single regulatory region."
-  },
-  "oriT": {
-    "so_id": "SO:0000724",
-    "so_term": "origin_of_transfer",
-    "ft_desc": "origin of transfer; region of a DNA molecule where transfer is initiated during the process of conjugation or mobilization",
-    "so_desc": "A region of a DNA molecule whre transfer is initiated during the process of conjugation or mobilization."
-  },
-  "polyA_signal": {
-    "so_id": "SO:0000551",
-    "so_term": "polyA_signal_sequence",
-    "ft_desc": "recognition region necessary for endonuclease cleavage of an RNA transcript that is followed by polyadenylation; consensus=AATAAA [1]",
-    "so_desc": "The recognition sequence necessary for endonuclease cleavage of an RNA transcript that is followed by polyadenylation; consensus=AATAAA."
-  },
-  "polyA_site": {
-    "so_id": "SO:0000553",
-    "so_term": "polyA_site",
-    "ft_desc": "site on an RNA transcript to which will be added adenine residues by post-transcriptional polyadenylation",
-    "so_desc": "The site on an RNA transcript to which will be added adenine residues by post-transcriptional polyadenylation."
-  },
-  "precursor_RNA": {
-    "so_id": "SO:0000185",
-    "so_term": "primary_transcript",
-    "ft_desc": "any RNA species that is not yet the mature RNA product; may include 5' clipped region (5'clip), 5' untranslated region (5'UTR), coding sequences (CDS, exon), intervening sequences (intron), 3' untranslated region (3'UTR), and 3' clipped region (3'clip)",
-    "so_desc": "The primary (initial, unprocessed) transcript; includes five_prime_clip (SO:0000555), five_prime_untranslated_region (SO:0000204), open reading frames (SO:0000236), introns (SO:0000188) and three_prime_ untranslated_region (three_prime_UTR), and three_prime_clip (SO:0000557)."
-  },
-  "prim_transcript": {
-    "so_id": "SO:0000185",
-    "so_term": "primary_transcript",
-    "ft_desc": "primary (initial, unprocessed) transcript; includes 5' clipped region (5'clip), 5' untranslated region (5'UTR), coding sequences (CDS, exon), intervening sequences (intron), 3' untranslated region (3'UTR), and 3' clipped region (3'clip)",
-    "so_desc": "The primary (initial, unprocessed) transcript; includes five_prime_clip (SO:0000555), five_prime_untranslated_region (SO:0000204), open reading frames (SO:0000236), introns (SO:0000188) and three_prime_ untranslated_region (three_prime_UTR), and three_prime_clip (SO:0000557)."
-  },
-  "primer_bind": {
-    "so_id": "SO:0005850",
-    "so_term": "primer_binding_site",
-    "ft_desc": "non-covalent primer binding site for initiation of replication, transcription, or reverse transcription; includes site(s) for synthetic e.g., PCR primer elements",
-    "so_desc": "Non-covalent primer binding site for initiation of replication, transcription, or reverse transcription."
-  },
-  "promoter": {
-    "so_id": "SO:0000167",
-    "so_term": "promoter",
-    "ft_desc": "region on a DNA molecule involved in RNA polymerase binding to initiate transcription",
-    "so_desc": "The region on a DNA molecule involved in RNA polymerase binding to initiate transcription."
-  },
-  "protein_bind": {
-    "so_id": "SO:0000410",
-    "so_term": "protein_binding_site",
-    "ft_desc": "non-covalent protein binding site on nucleic acid",
-    "so_desc": "A region of a molecule that binds to a protein."
-  },
-  "rRNA": {
-    "so_id": "SO:0000252",
-    "so_term": "rRNA",
-    "ft_desc": "mature ribosomal RNA ; RNA component of the ribonucleoprotein particle (ribosome) which assembles amino acids into proteins",
-    "so_desc": "RNA that comprises part of a ribosome, and that can provide both structural scaffolding and catalytic activity."
-  },
-  "repeat_region": {
-    "so_id": "SO:0000657",
-    "so_term": "repeat_region",
-    "ft_desc": "region of genome containing repeating units",
-    "so_desc": "A region of sequence containing one or more repeat units."
+    "so_desc": "",
+    "mapping": ""
   },
   "repeat_unit": {
     "so_id": "SO:0000726",
     "so_term": "repeat_unit",
-    "ft_desc": "single repeat element",
-    "so_desc": "A single repeat element."
+    "ft_desc": "single repeat element;",
+    "so_desc": "A single repeat element.",
+    "mapping": ""
   },
   "satellite": {
     "so_id": "SO:0000005",
     "so_term": "satellite_DNA",
-    "ft_desc": "many tandem repeats (identical or related) of a short basic repeating unit; many have a base composition or other property different from the genome average that allows them to be separated from the bulk (main band) genomic DNA",
-    "so_desc": "The many tandem repeats (identical or related) of a short basic repeating unit; many have a base composition or other property different from the genome average that allows them to be separated from the bulk (main band) genomic DNA."
+    "ft_desc": "many tandem repeats (identical or related) of a short basic repeating unit;  many have a base composition or other property different from the genome average  that allows them to be separated from the bulk (main band) genomic DNA;",
+    "so_desc": "The many tandem repeats (identical or related) of a short basic repeating unit; many have a base composition or other property different from the genome average that allows them to be separated from the bulk (main band) genomic DNA.",
+    "mapping": ""
   },
   "scRNA": {
     "so_id": "SO:0000013",
     "so_term": "scRNA",
-    "ft_desc": "small cytoplasmic RNA; any one of several small cytoplasmic RNA molecules present in the cytoplasm and (sometimes) nucleus of a eukaryote",
-    "so_desc": "Any one of several small cytoplasmic RNA moleculespresent in the cytoplasm and sometimes nucleus of a eukaryote."
-  },
-  "sig_peptide": {
-    "so_id": "SO:0000418",
-    "so_term": "signal_peptide",
-    "ft_desc": "signal peptide coding sequence; coding sequence for an N-terminal domain of a secreted protein; this domain is involved in attaching nascent polypeptide to the membrane leader sequence",
-    "so_desc": "The sequence for an N-terminal domain of a secreted protein; this domain is involved in attaching nascent polypeptide to the membrane leader sequence."
+    "ft_desc": "small cytoplasmic RNA; any one of several small cytoplasmic RNA molecules present in the cytoplasm and (sometimes) nucleus of a eukaryote; ",
+    "so_desc": "Any one of several small cytoplasmic RNA moleculespresent in the cytoplasm and sometimes nucleus of a eukaryote. ",
+    "mapping": ""
   },
   "snRNA": {
     "so_id": "SO:0000274",
     "so_term": "snRNA",
-    "ft_desc": "small nuclear RNA molecules involved in pre-mRNA splicing and processing",
-    "so_desc": "Small non-coding RNA in the nucleoplasm."
+    "ft_desc": "small nuclear RNA molecules involved in pre-mRNA  splicing and processing  ",
+    "so_desc": "Small non-coding RNA in the nucleoplasm.",
+    "mapping": ""
   },
   "snoRNA": {
     "so_id": "SO:0000275",
     "so_term": "snoRNA",
-    "ft_desc": "small nucleolar RNA molecules mostly involved in rRNA modification and processing",
-    "so_desc": "Small nucleolar RNAs (snoRNAs) are involved in the processing and modification of rRNA in the nucleolus. There are two main classes of snoRNAs: the box C/D class, and the box H/ACA class. U3 snoRNA is a member of the box C/D class. Indeed, the box C/D element is a subset of the six short sequence elements found in all U3 snoRNAs, namely boxes A, A', B, C, C', and D. The U3 snoRNA secondary structure is characterised by a small 5' domain (with boxes A and A'), and a larger 3' domain (with boxes B, C, C', and D), the two domains being linked by a single-stranded hinge. Boxes B and C form the B/C motif, which appears to be exclusive to U3 snoRNAs, and boxes C' and D form the C'/D motif. The latter is functionally similar to the C/D motifs found in other snoRNAs. The 5' domain and the hinge region act as a pre-rRNA-binding domain. The 3' domain has conserved protein-binding sites. Both the box B/C and box C'/D motifs are sufficient for nuclear retention of U3 snoRNA. The box C'/D motif is also necessary for nucleolar localization, stability and hypermethylation of U3 snoRNA. Both box B/C and C'/D motifs are involved in specific protein interactions and are necessary for the rRNA processing functions of U3 snoRNA."
-  },
-  "source": {
-    "so_id": "SO:2000061",
-    "so_term": "databank_entry",
-    "ft_desc": "identifies the biological source of the specified span of the sequence; this key is mandatory; more than one source key per sequence is allowed; every entry/record will have, as a minimum, either a single source key spanning the entire sequence or multiple source keys which together span the entire sequence. /mol_type=\"genomic DNA\", \"genomic RNA\", \"mRNA\", \"tRNA\", \"rRNA\", \"snoRNA\", \"snRNA\", \"scRNA\", \"pre-RNA\", \"other RNA\", \"other DNA\", \"unassigned DNA\", \"unassigned RNA\"",
-    "so_desc": "The sequence referred to by an entry in a databank such as Genbank or SwissProt."
-  },
-  "stem_loop": {
-    "so_id": "SO:0000313",
-    "so_term": "stem_loop",
-    "ft_desc": "hairpin; a double-helical region formed by base-pairing between adjacent (inverted) complementary sequences in a single strand of RNA or DNA",
-    "so_desc": "A double-helical region of nucleic acid formed by base-pairing between adjacent (inverted) complementary sequences."
-  },
-  "tRNA": {
-    "so_id": "SO:0000253",
-    "so_term": "tRNA",
-    "ft_desc": "mature transfer RNA, a small RNA molecule (75-85 bases long) that mediates the translation of a nucleic acid sequence into an amino acid sequence",
-    "so_desc": "Transfer RNA (tRNA) molecules are approximately 80 nucleotides in length. Their secondary structure includes four short double-helical elements and three loops (D, anti-codon, and T loops). Further hydrogen bonds mediate the characteristic L-shaped molecular structure. tRNAs have two regions of fundamental functional importance: the anti-codon, which is responsible for specific mRNA codon recognition, and the 3' end, to which the tRNA's corresponding amino acid is attached (by aminoacyl-tRNA synthetases). tRNAs cope with the degeneracy of the genetic code in two manners: having more than one tRNA (with a specific anti-codon) for a particular amino acid; and 'wobble' base-pairing, i.e. permitting non-standard base-pairing at the 3rd anti-codon position."
-  },
-  "terminator": {
-    "so_id": "SO:0000141",
-    "so_term": "terminator",
-    "ft_desc": "sequence of DNA located either at the end of the transcript that causes RNA polymerase to terminate transcription",
-    "so_desc": "The sequence of DNA located either at the end of the transcript that causes RNA polymerase to terminate transcription."
-  },
-  "transit_peptide": {
-    "so_id": "SO:0000725",
-    "so_term": "transit_peptide",
-    "ft_desc": "transit peptide coding sequence; coding sequence for an N-terminal domain of a nuclear-encoded organellar protein; this domain is involved in post-translational import of the protein into the organelle",
-    "so_desc": "The coding sequence for an N-terminal domain of a nuclear-encoded organellar protein: this domain is involved in post translational import of the protein into the organelle."
+    "ft_desc": "small nucleolar RNA molecules mostly involved in  rRNA modification and processing;  ",
+    "so_desc": "Small nucleolar RNAs (snoRNAs) are involved in the processing and modification of rRNA in the nucleolus. There are two main classes of snoRNAs: the box C/D class, and the box H/ACA class. U3 snoRNA is a member of the box C/D class. Indeed, the box C/D element is a subset of the six short sequence elements found in all U3 snoRNAs, namely boxes A, A', B, C, C', and D. The U3 snoRNA secondary structure is characterised by a small 5' domain (with boxes A and A'), and a larger 3' domain (with boxes B, C, C', and D), the two domains being linked by a single-stranded hinge. Boxes B and C form the B/C motif, which appears to be exclusive to U3 snoRNAs, and boxes C' and D form the C'/D motif. The latter is functionally similar to the C/D motifs found in other snoRNAs. The 5' domain and the hinge region act as a pre-rRNA-binding domain. The 3' domain has conserved protein-binding sites. Both the box B/C and box C'/D motifs are sufficient for nuclear retention of U3 snoRNA. The box C'/D motif is also necessary for nucleolar localization, stability and hypermethylation of U3 snoRNA. Both box B/C and C'/D motifs are involved in specific protein interactions and are necessary for the rRNA processing functions of U3 snoRNA.",
+    "mapping": ""
   },
   "unsure": {
     "so_id": "undefined",
     "so_term": "undefined",
-    "ft_desc": "author is unsure of exact sequence in this region",
-    "so_desc": "undefined"
-  },
-  "variation": {
-    "so_id": "SO:0000109",
-    "so_term": "sequence_variant",
-    "ft_desc": "a related strain contains stable mutations from the same gene (e.g., RFLPs, polymorphisms, etc.) which differ from the presented sequence at this location (and possibly others)",
-    "so_desc": "A region of sequence where variation has been observed."
+    "ft_desc": "author is unsure of exact sequence in this region;",
+    "so_desc": "",
+    "mapping": ""
   }
 }
