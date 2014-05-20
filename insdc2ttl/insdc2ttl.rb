@@ -96,18 +96,6 @@ end
 class FT_SO
   def initialize
     @data = JSON.parse(File.read(File.dirname(__FILE__) + "/ft_so.json"))
-    @data["ncRNA"] = {
-      "so_id" => "SO:0000655",
-      "so_term" => "ncRNA",
-      "ft_desc" => "noncoding RNA",
-      "so_desc" => "An RNA transcript that does not encode for a protein rather the RNA molecule is the gene product."
-    }
-    @data["tmRNA"] = {
-      "so_id" => "SO:0000584",
-      "so_term" => "tmRNA",
-      "ft_desc" => "transfer messenger RNA; tmRNA acts as a tRNA first, and then as an mRNA that encodes a peptide tag; the ribosome translates this mRNA region of tmRNA and attaches the encoded peptide tag to the C-terminus of the unfinished protein; this attached tag targets the protein for destruction or proteolysis",
-      "so_desc" => "A tmRNA liberates a mRNA from a stalled ribosome. To accomplish this part of the tmRNA is used as a reading frame that ends in a translation stop signal. The broken mRNA is replaced in the ribosome by the tmRNA and translation of the tmRNA leads to addition of a proteolysis tag to the incomplete protein enabling recognition by a protease. Recently a number of permuted tmRNAs genes have been found encoded in two parts. TmRNAs have been identified in eubacteria and some chloroplasts but are absent from archeal and Eukaryote nuclear genomes."
-    }
   end
 
   # ftso = FT_SO.new
