@@ -500,8 +500,7 @@ class INSDC2RDF
       hash = gene.to_hash
 
       puts triple(gene_id, "rdf:type", @ft_so.obo_id("gene")) + "  # SO:gene"
-      #puts triple(gene_id, "obo:so_part_of", @sequence_id)
-      puts triple(gene_id, "sio:SIO_010080", @sequence_id)  # sio:is-transcribed-into
+      puts triple(gene_id, "obo:so_part_of", @sequence_id)
 
       loc_id, _ = new_location(gene.position, {:id => @ft_so.so_id("gene"), :term => "gene"})
       puts triple(gene_id, "faldo:location", loc_id)
@@ -561,6 +560,9 @@ class INSDC2RDF
 
       puts triple(feature_id, "rdfs:label", quote(locus_tag || gene || feature))
       puts triple(feature_id, "obo:so_part_of", gene_id || @sequence_id)
+      if gene_id
+        puts triple(gene_id, "sio:SIO_010080", feature_id)  # sio:is-transcribed-into
+      end
 
       # link to exons in join(exon1, exon2, ...)
       if gene_id
