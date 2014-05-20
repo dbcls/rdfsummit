@@ -241,31 +241,36 @@ class INSDC2RDF
     # e.g., join(800..900,1000..1024,1..234) will be faldo:begin 800 and faldo:end 234
     new_stranded_positions(pos_begin, pos_end, @locations.first.from, @locations.last.to, strand, fuzzy_first, fuzzy_last)
 
-    list = []
-    count = 1
-    # [TODO] need to confirm that if there are any features having subparts (except for genes)
+    @exon_list = []
+
     if feature_type[:term] == "exon"
-      @locations.each do |loc|
-        subpart_id = new_uuid
-        exon_id = new_region_uri(feature_type[:id], loc.from, loc.to, loc.strand)
-        subpart_begin = new_position_uri(loc.from, loc.strand)
-        subpart_end = new_position_uri(loc.to, loc.strand)
-
-        #puts triple(subpart_id, "obo:so_part_of", loc_id)
-        puts triple(subpart_id, "sio:SIO_000300", count)    # sio:has-value
-        puts triple(subpart_id, "sio:SIO_000628", exon_id)   # sio:referes-to
-
-        puts triple(subpart_id, "rdf:type", feature_type[:id]) + "  # #{feature_type[:term]}"
-        puts triple(subpart_id, "rdf:type", "faldo:Region")
-        puts triple(subpart_id, "faldo:begin", subpart_begin)
-        puts triple(subpart_id, "faldo:end", subpart_end)
-        new_stranded_positions(subpart_begin, subpart_end, loc.from, loc.to, loc.strand)
-        list << subpart_id
-        count += 1
-      end
+      add_exons
     end
 
-    return loc_id, list
+    return loc_id, @exon_list
+  end
+
+  def add_exons
+    count = 1
+    # [TODO] need to confirm that if there are any features having subparts (except for genes)
+    @locations.each do |loc|
+      subpart_id = new_uuid
+      exon_id = new_region_uri("SO:0000147", loc.from, loc.to, loc.strand)
+      subpart_begin = new_position_uri(loc.from, loc.strand)
+      subpart_end = new_position_uri(loc.to, loc.strand)
+
+      #puts triple(subpart_id, "obo:so_part_of", loc_id)
+      puts triple(subpart_id, "sio:SIO_000300", count)    # sio:has-value
+      puts triple(subpart_id, "sio:SIO_000628", exon_id)   # sio:referes-to
+
+      puts triple(subpart_id, "rdf:type", "obo:SO_0000147") + "  # SO:exon"
+      puts triple(subpart_id, "rdf:type", "faldo:Region")
+      puts triple(subpart_id, "faldo:begin", subpart_begin)
+      puts triple(subpart_id, "faldo:end", subpart_end)
+      new_stranded_positions(subpart_begin, subpart_end, loc.from, loc.to, loc.strand)
+      @exon_list << subpart_id
+      count += 1
+    end
   end
 
   def new_stranded_positions(pos_begin, pos_end, from, to, strand, fuzzy_from = nil, fuzzy_to = nil)
@@ -495,7 +500,8 @@ class INSDC2RDF
       hash = gene.to_hash
 
       puts triple(gene_id, "rdf:type", @ft_so.obo_id("gene")) + "  # SO:gene"
-      puts triple(gene_id, "obo:so_part_of", @sequence_id)
+      #puts triple(gene_id, "obo:so_part_of", @sequence_id)
+      puts triple(gene_id, "sio:SIO_010080", @sequence_id)  # sio:is-transcribed-into
 
       loc_id, _ = new_location(gene.position, {:id => @ft_so.so_id("gene"), :term => "gene"})
       puts triple(gene_id, "faldo:location", loc_id)
