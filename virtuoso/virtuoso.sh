@@ -4,66 +4,85 @@ prefix=/opt/virtuoso
 port=1111
 user=dba
 pass=dba
+
 isql="${prefix}/bin/isql ${port} $user $pass"
 
 case "$1" in
-  start)
+    start)
         (cd ${prefix}/var/lib/virtuoso/db; ${prefix}/bin/virtuoso-t)
         ;;
-  stop)
+    stop)
         echo "shutdown;" | $isql
         ;;
-  status)
+    status)
         echo "isql ${port}"
         echo "status();" | $isql
         echo
         ;;
-  watch)
-        echo "select count(*) from DB.DBA.LOAD_LIST where ll_state = 0;" | $isql
-        ;;
-  isql)
+    isql)
         $isql
         ;;
-  port)
+    port)
         echo ${port}
         ;;
-  path)
+    path)
         echo ${prefix}/var/lib/virtuoso/db/
         ;;
-  list)
+    ls)
         ls -l ${prefix}/var/lib/virtuoso/db/
         ;;
-  log)
+    log)
         tail -f ${prefix}/var/lib/virtuoso/db/virtuoso.log
         ;;
-  edit)
+    edit)
         ${EDITOR:-vi} ${prefix}/var/lib/virtuoso/db/virtuoso.ini
         ;;
-  clear)
+    loadrdf)
+        echo "log_enable(2,1);\nDB.DBA.RDF_LOAD_RDFXML_MT(file_to_string_output('$2'), '', '$3');\ncheckpoint;" | $isql
+        ;;
+    loadttl)
+        echo "log_enable(2,1);\nDB.DBA.TTLP_MT(file_to_string_output('$2'), '', '$3', 81);\ncheckpoint;" | $isql
+        ;;
+    loaddir)
+        echo "log_enable(2,1);\nld_dir_all('$2', '$3', '$4');\nrdf_loader_run();\ncheckpoint;" | $isql
+        ;;
+    watch)
+        echo "SELECT COUNT(*) FROM DB.DBA.LOAD_LIST WHERE ll_state = 0;" | $isql
+        ;;
+    list)
+        echo "SPARQL SELECT DISTINCT ?g WHERE { GRAPH ?g {?s ?p ?o} };" | $isql
+        ;;
+    head)
+        echo "SPARQL SELECT DISTINCT * WHERE { GRAPH <$2> {?s ?p ?o} } LIMIT 10;" | $isql
+        ;;
+    clear)
+        echo "log_enable(2,1);\nSPARQL CLEAR GRAPH <$2>;\ncheckpoint;" | $isql
+        echo "SPARQL SELECT COUNT(*) FROM <$2> WHERE {?s ?p ?o};" | $isql
+        echo "DELETE FROM DB.DBA.LOAD_LIST WHERE ll_graph = '$2';" | $isql
+        echo "SPARQL DROP GRAPH <$2>;" | $isql
+        ;;
+    remove)
         mv ${prefix}/var/lib/virtuoso/db/virtuoso.ini ${prefix}/virtuoso.ini
         rm -f ${prefix}/var/lib/virtuoso/db/*
         mv ${prefix}/virtuoso.ini ${prefix}/var/lib/virtuoso/db/virtuoso.ini
         ;;
-  loadrdf)
-	echo "log_enable(2, 1);" | $isql
-	echo "DB.DBA.RDF_LOAD_RDFXML_MT(file_to_string_output('$2'), '', '$3');" | $isql
-	echo "checkpoint;" | $isql
-        ;;
-  loadttl)
-	echo "log_enable(2, 1);" | $isql
-	echo "DB.DBA.TTLP_MT(file_to_string_output('$2'), '', '$3', 81);" | $isql
-	echo "checkpoint;" | $isql
-        ;;
-  loaddir)
-	echo "log_enable(2, 1);" | $isql
-	echo "ld_dir_all('$2', '$3', '$4');" | $isql
-	echo "rdf_loader_run();" | $isql
-	echo "checkpoint;" | $isql
-        ;;
-  *)
-        echo "Usage: $0 {start|stop|status|watch|isql|port|path|list|log|edit|clear|loadrdf|loadttl|loaddir}"
-        echo "       $0 loadrdf file.rdf graph_uri"
-        echo "       $0 loadttl file.ttl graph_uri"
-        echo "       $0 loaddir dir pattern graph_uri"
+    *)
+        echo "Usage:"
+        echo "  Start/stop/config a Virtuoso server"
+        echo "    $0 {start|stop|status|isql|port|path|ls|log|edit}"
+        echo "  Loading RDF files"
+        echo "    $0 loadrdf file.rdf graph_uri"
+        echo "    $0 loadttl file.ttl graph_uri"
+        echo "    $0 loaddir dir pattern graph_uri"
+        echo "  Count remaining files"
+        echo "    $0 watch"
+        echo "  List graphs"
+        echo "    $0 list"
+        echo "  Peek a graph"
+        echo "    $0 head graph_uri"
+        echo "  Clear a graph"
+        echo "    $0 clear graph_uri"
+        echo "  Remove entire database"
+        echo "    $0 remove"
         exit 2
 esac
