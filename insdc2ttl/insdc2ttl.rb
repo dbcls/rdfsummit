@@ -220,86 +220,87 @@ class INSDC2RDF
     "<#{@sequence_id}#position:#{pos}:#{strand}>"
   end
 
-  def new_location(pos, feature_type = {:id => "SO:0000001", :term => "region"})
-    @locations = Bio::Locations.new(pos)
+  def new_location(object, pos)
+    puts triple(object, "insdc:location", quote(pos))
+    locations = Bio::Locations.new(pos)
 
-    min, max = @locations.span
-    strand = @locations.first.strand
-
-    pos_begin =	new_position_uri(min, @locations.first.strand)
-    pos_end = new_position_uri(max, @locations.last.strand)
-    loc_id = new_region_uri(min, max, strand)
-
-    puts triple(loc_id, "insdc:location", quote(pos))
-    puts triple(loc_id, "rdf:type", "faldo:Region")
-    puts triple(loc_id, "faldo:begin", pos_begin)
-    puts triple(loc_id, "faldo:end", pos_end)
-
-    fuzzy_first = @locations.first.lt or @locations.last.gt
-    fuzzy_last = @locations.last.lt or @locations.last.gt
-    
-    # join(<1,60..99,161..241,302..370,436..594,676..887,993..1141,1209..1329,1387..1559,1626..1646,1708..>1843)
-    # [TODO] Note that positions of an object located over the origin can be faldo:begin > faldo:end
+    # [TODO] annotation located over the origin of a circular genome can be faldo:begin > faldo:end even in ForwardStrandPosition
     # e.g., join(800..900,1000..1024,1..234) will be faldo:begin 800 and faldo:end 234
-    new_stranded_positions(pos_begin, pos_end, @locations.first.from, @locations.last.to, strand, fuzzy_first, fuzzy_last)
-
-    @exon_list = []
-
-    if feature_type[:term] == "exon"
-      add_exons
+    min, max = locations.span
+    strand = locations.first.strand
+    if strand > 0
+      fuzzy_min = locations.first.lt
+      fuzzy_max = locations.last.gt
+      strand_min = locations.first.strand
+      strand_max = locations.last.strand
+    else
+      fuzzy_min = locations.last.lt
+      fuzzy_max = locations.first.gt
+      strand_min = locations.last.strand
+      strand_max = locations.first.strand
     end
+    region_id = new_faldo_region(object, min, max, strand_min, strand_max, fuzzy_min, fuzzy_max)
 
-    return loc_id, @exon_list
+    return region_id, locations
   end
 
-  def add_exons
+  def add_subparts(locations, feature_type)
     count = 1
-    # [TODO] need to confirm that if there are any features having subparts (except for genes)
-    @locations.each do |loc|
+    subparts = []
+    locations.each do |loc|
       subpart_id = new_uuid
-      exon_id = new_feature_uri("exon", loc.from, loc.to, loc.strand)
-      subpart_begin = new_position_uri(loc.from, loc.strand)
-      subpart_end = new_position_uri(loc.to, loc.strand)
+      subfeature_id = new_feature_uri(feature_type[:term], loc.from, loc.to, loc.strand)
 
-      #puts triple(subpart_id, "obo:so_part_of", loc_id)
+      #puts triple(subpart_id, "obo:so_part_of", region_id)
       puts triple(subpart_id, "sio:SIO_000300", count) + "  # sio:has-value"
-      puts triple(subpart_id, "sio:SIO_000628", exon_id) + "  # sio:referes-to"
+      puts triple(subpart_id, "sio:SIO_000628", subfeature_id) + "  # sio:referes-to"
 
-      puts triple(exon_id, "rdf:type", "obo:SO_0000147") + "  # SO:exon"
-      puts triple(exon_id, "rdf:type", "faldo:Region")
-      puts triple(exon_id, "faldo:begin", subpart_begin)
-      puts triple(exon_id, "faldo:end", subpart_end)
-      new_stranded_positions(subpart_begin, subpart_end, loc.from, loc.to, loc.strand)
-      @exon_list << subpart_id
+      puts triple(subfeature_id, "rdf:type", feature_type[:id]) + "  # SO:#{feature_type[:term]}"
+      new_faldo_region(subfeature_id, loc.from, loc.to, loc.strand, loc.strand, loc.lt, loc.gt)
+      subparts << subpart_id
       count += 1
     end
+    return subparts
   end
 
-  def new_stranded_positions(pos_begin, pos_end, from, to, strand, fuzzy_from = nil, fuzzy_to = nil)
-    if strand > 0
-      new_position(pos_begin, from, "faldo:ForwardStrandPosition", fuzzy_from)
-      new_position(pos_end, to, "faldo:ForwardStrandPosition", fuzzy_to)
+  def new_faldo_region(object, min, max, strand_min, strand_max, fuzzy_min = nil, fuzzy_max = nil)
+    region_id = new_region_uri(min, max, strand_min)
+    region_min = new_position_uri(min, strand_min)
+    region_max = new_position_uri(max, strand_max)
+
+    puts triple(object, "faldo:location", region_id)
+    puts triple(region_id, "rdf:type", "faldo:Region")
+    if strand_min > 0
+      puts triple(region_id, "faldo:begin", region_min)
+      puts triple(region_id, "faldo:end", region_max)
+      new_position(region_min, min, "faldo:ForwardStrandPosition", fuzzy_min)
+      new_position(region_max, max, "faldo:ForwardStrandPosition", fuzzy_max)
     else
-      new_position(pos_begin, to, "faldo:ReverseStrandPosition", fuzzy_to)
-      new_position(pos_end, from, "faldo:ReverseStrandPosition", fuzzy_from)
+      puts triple(region_id, "faldo:begin", region_max)
+      puts triple(region_id, "faldo:end", region_min)
+      new_position(region_min, min, "faldo:ReverseStrandPosition", fuzzy_min)
+      new_position(region_max, max, "faldo:ReverseStrandPosition", fuzzy_max)
     end
+
+    return region_id
   end
 
   def new_position(pos_id, pos, strand, fuzzy = nil)
     puts triple(pos_id, "faldo:position", pos)
     puts triple(pos_id, "faldo:reference", @sequence_uri)
+    puts triple(pos_id, "rdf:type", strand)
     if fuzzy
       puts triple(pos_id, "rdf:type", "faldo:FuzzyPosition")
     else
       puts triple(pos_id, "rdf:type", "faldo:ExactPosition")
     end
-    puts triple(pos_id, "rdf:type", strand)
   end
 
   ###
   ### Main
   ###
 
+  # [TODO] rewrite parse_entry and subsequent methods to use Bio::Sequence for EMBL support
   def parse_entry(io)
     # Read INSDC or RefSeq entry
     Bio::FlatFile.auto(io).each do |entry|
@@ -318,22 +319,22 @@ class INSDC2RDF
   ###
 
   # [TODO]
-  # * bind sequences by BioProject ID?
-  # * flag complete/draft?
+  # * bind multiple sequences by BioProject ID?
+  # * add a flag for sequencing status representing complete/draft?
   def parse_sequence
     @sequence_id = "#{@entry_prefix}#{@entry.acc_version}"
     @sequence_uri = "<#{@sequence_id}>"
 
-    # [TODO] How to identify the input is chromosome/plasmid/contig/...?
+    # [TODO] how to automatically identify the input is chromosome/plasmid/contig/...?
     sequence_type(@seqtype)
-    # [TODO] Obtain rdfs:label from source /chromosome (eukaryotes) /plasmid (prokaryotes) -> see insdc:source_chromosome, insdc:source_plasmid
+    # [TODO] obtain rdfs:label from source /chromosome (eukaryotes) /plasmid (prokaryotes) -> see insdc:source_chromosome, insdc:source_plasmid
     sequence_label(@entry.definition)
     sequence_version(@entry.acc_version)
     sequence_length(@entry.nalen)
-    # [TODO] provide REST API to retreive genomic DNA sequence by <@sequence_id.fasta>
+    # [TODO] find appropriate REST URI to retreive genomic DNA sequence by <@sequence_id.fasta>
     sequence_seq(@entry.acc_version)
     sequence_form(@entry.circular)
-    # [TODO] sequenced date, modified in the source db or in our RDF data?
+    # [TODO] sequenced date: updated date in the source DB or generation date of the RDF data?
     sequence_date(@entry.date)
     # [TODO] rdfs:seeAlso (like UniProt) or dc:relation, owl:sameAs
     sequence_link_gi(@entry.gi.sub('GI:',''))
@@ -389,7 +390,7 @@ class INSDC2RDF
   end
 
   def sequence_seq(str)
-    # [TODO] Where to privide the actual DNA sequence?
+    # [TODO] where to obtain the actual DNA sequence? in what format?
     #fasta_uri = "<http://togows.org/entry/nucleotide/#{str}.fasta>"
     fasta_uri = "<http://www.ncbi.nlm.nih.gov/nuccore/#{str}?report=fasta>"
     puts triple(@sequence_uri, "insdc:sequence_fasta", fasta_uri)
@@ -413,9 +414,8 @@ class INSDC2RDF
   end
 
   def sequence_link_accver(str, source_db = 'RefSeq')
-    # [TODO] distinguish RefSeq/GenBank/DDBJ entries by the prefix of accession IDs
+    # [TODO] automatically distinguish RefSeq/GenBank/DDBJ entries by the prefix of accession IDs?
     # [TODO] register GenBank/DDBJ in rs_id.json to enable the above
-    # [TODO] rewrite parse_entry and subsequent methods to use Bio::Sequence for EMBL support
     xref(@sequence_uri, source_db, str)
   end
 
@@ -438,9 +438,10 @@ class INSDC2RDF
 
   def sequence_ref(refs)
     refs.each do |ref|
-      pmid = ref.pubmed
-      if pmid.length > 0
-        xref(@sequence_uri, 'PubMed', pmid)
+      if pmid = ref.pubmed
+        if pmid.length > 0
+          xref(@sequence_uri, 'PubMed', pmid)
+        end
       end
     end
   end
@@ -461,8 +462,7 @@ class INSDC2RDF
   end
 
   def source_location(pos)
-    loc_id, = new_location(pos)
-    puts triple(@source_uri, "faldo:location", loc_id)
+    new_location(@source_uri, pos)
   end
 
   def source_link(links)
@@ -502,25 +502,16 @@ class INSDC2RDF
       gene_id = new_feature_uri("gene", locations.first.from, locations.last.to, locations.first.strand)
       hash = gene.to_hash
 
-      puts triple(gene_id, "rdf:type", @ft_so.obo_id("gene")) + "  # SO:gene"
-      puts triple(gene_id, "obo:so_part_of", @sequence_uri)
-
-      loc_id, = new_location(gene.position, {:id => @ft_so.so_id("gene"), :term => "gene"})
-      puts triple(gene_id, "faldo:location", loc_id)
-
       # try to cache gene IDs in the @gene hash for linking with other features (CDS, mRNA etc.)
       if hash["locus_tag"]
         locus_tag = hash["locus_tag"].first
         @gene[locus_tag] = gene_id
-        puts triple(gene_id, "rdfs:label", quote(locus_tag))
       elsif hash["gene"]
         gene = hash["gene"].first
         @gene[gene] = gene_id
-        puts triple(gene_id, "rdfs:label", quote(gene))
       else
-        # [TODO] Where else to find gene name?
+        # [TODO] where else to find gene name?
       end
-      parse_qualifiers(gene_id, hash)
     end
   end
 
@@ -529,24 +520,25 @@ class INSDC2RDF
   ###
 
   def parse_features
-    features = @features.select {|x| x.feature != "gene" }
-
-    features.each do |feat|
+    @features.each do |feat|
       feature = feat.feature
-      locations = Bio::Locations.new(feat.position)
-      feature_id = new_feature_uri(feature, locations.first.from, locations.last.to, locations.first.strand)
-
       @feature_count[feature] += 1
 
-      so_id = "SO:0000001"
-      so_term = "region"
+      locations = Bio::Locations.new(feat.position)
+      min, max = locations.span
+      strand = locations.first.strand
+      feature_id = new_feature_uri(feature, min, max, strand)
 
+      so_id = "SO:0000001"
+      so_obo_id = "obo:SO_0000001"
+      so_term = "region"
       if so_id = @ft_so.so_id(feature)
         if so_id != "undefined"
+          so_obo_id = @ft_so.obo_id(feature)
           so_term = @ft_so.so_term(feature)
         end
       end
-      puts triple(feature_id, "rdf:type", @ft_so.obo_id(feature)) + "  # SO:#{so_term}"
+      puts triple(feature_id, "rdf:type", so_obo_id) + "  # SO:#{so_term}"
 
       # try to link gene-related features (CDS, mRNA etc.) by matching /locus_tag or /gene qualifier values
       hash = feat.to_hash
@@ -560,22 +552,26 @@ class INSDC2RDF
           gene_id = @gene[gene]
         end
       end
-
       puts triple(feature_id, "rdfs:label", quote(locus_tag || gene || feature))
-      puts triple(feature_id, "obo:so_part_of", gene_id || @sequence_uri)
-      if gene_id
+
+      parent_uri = @sequence_uri
+      if gene_id and gene_id != feature_id
+        parent_uri = gene_id
         puts triple(gene_id, "sio:SIO_010080", feature_id) + "  # sio:is-transcribed-into"
       end
+      puts triple(feature_id, "obo:so_part_of", parent_uri)
 
-      # link to exons in join(exon1, exon2, ...)
-      if gene_id
-        feature_type = { :id => "SO:0000147", :term => "exon" }
-      else
-        feature_type = { :id => so_id, :term => so_term }
-      end
-      loc_id, subparts = new_location(feat.position, feature_type)
-      puts triple(feature_id, "faldo:location", loc_id)
-      unless subparts.empty?
+      region_id, subparts = new_location(feature_id, feat.position)
+
+      if subparts.locations.size > 1
+        if gene_id
+          # link to exons in join(exon1, exon2, ...)
+          feature_type = { :id => "obo:SO_0000147", :term => "exon" }
+        else
+          # [TODO] need to confirm that if there are any features having subparts other than exons
+          feature_type = { :id => "obo:SO_0000001", :term => "region" }
+        end
+        subparts = add_subparts(locations, feature_type)
         #puts triple(feature_id, "obo:so_has_part", "(#{subparts.join(' ')})")  # rdf:List
         puts triple(feature_id, "sio:SIO_000974", subparts.join(', ')) + "  # sio:has-ordered-part"
       end
