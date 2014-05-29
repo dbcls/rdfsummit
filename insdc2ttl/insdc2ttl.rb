@@ -208,8 +208,12 @@ class INSDC2RDF
   ### FALDO http://biohackathon.org/faldo
   ###
 
-  def new_feature_uri(feature, from, to, strand)
-    "<#{@sequence_id}#feature:#{feature}:#{from}-#{to}:#{strand}>"
+  def new_feature_uri(feature, from, to, strand, count = false)
+    if count
+      "<#{@sequence_id}#feature:#{from}-#{to}:#{strand}/#{feature}:#{count}>"
+    else
+      "<#{@sequence_id}#feature:#{from}-#{to}:#{strand}/#{feature}>"
+    end
   end
 
   def new_region_uri(from, to, strand)
@@ -273,19 +277,19 @@ class INSDC2RDF
     if strand_min > 0
       puts triple(region_id, "faldo:begin", region_min)
       puts triple(region_id, "faldo:end", region_max)
-      new_position(region_min, min, "faldo:ForwardStrandPosition", fuzzy_min)
-      new_position(region_max, max, "faldo:ForwardStrandPosition", fuzzy_max)
+      new_faldo_position(region_min, min, "faldo:ForwardStrandPosition", fuzzy_min)
+      new_faldo_position(region_max, max, "faldo:ForwardStrandPosition", fuzzy_max)
     else
       puts triple(region_id, "faldo:begin", region_max)
       puts triple(region_id, "faldo:end", region_min)
-      new_position(region_min, min, "faldo:ReverseStrandPosition", fuzzy_min)
-      new_position(region_max, max, "faldo:ReverseStrandPosition", fuzzy_max)
+      new_faldo_position(region_min, min, "faldo:ReverseStrandPosition", fuzzy_min)
+      new_faldo_position(region_max, max, "faldo:ReverseStrandPosition", fuzzy_max)
     end
 
     return region_id
   end
 
-  def new_position(pos_id, pos, strand, fuzzy = nil)
+  def new_faldo_position(pos_id, pos, strand, fuzzy = nil)
     puts triple(pos_id, "faldo:position", pos)
     puts triple(pos_id, "faldo:reference", @sequence_uri)
     puts triple(pos_id, "rdf:type", strand)
@@ -498,8 +502,9 @@ class INSDC2RDF
     genes = @features.select {|x| x.feature == "gene"}
   
     genes.each do |gene|
+      @feature_count[gene.feature] += 1
       locations = Bio::Locations.new(gene.position)
-      gene_id = new_feature_uri("gene", locations.first.from, locations.last.to, locations.first.strand)
+      gene_id = new_feature_uri("gene", locations.first.from, locations.last.to, locations.first.strand, @feature_count[gene.feature])
       hash = gene.to_hash
 
       # try to cache gene IDs in the @gene hash for linking with other features (CDS, mRNA etc.)
@@ -522,23 +527,7 @@ class INSDC2RDF
   def parse_features
     @features.each do |feat|
       feature = feat.feature
-      @feature_count[feature] += 1
-
-      locations = Bio::Locations.new(feat.position)
-      min, max = locations.span
-      strand = locations.first.strand
-      feature_id = new_feature_uri(feature, min, max, strand)
-
-      so_id = "SO:0000001"
-      so_obo_id = "obo:SO_0000001"
-      so_term = "region"
-      if so_id = @ft_so.so_id(feature)
-        if so_id != "undefined"
-          so_obo_id = @ft_so.obo_id(feature)
-          so_term = @ft_so.so_term(feature)
-        end
-      end
-      puts triple(feature_id, "rdf:type", so_obo_id) + "  # SO:#{so_term}"
+      position = feat.position
 
       # try to link gene-related features (CDS, mRNA etc.) by matching /locus_tag or /gene qualifier values
       hash = feat.to_hash
@@ -552,6 +541,27 @@ class INSDC2RDF
           gene_id = @gene[gene]
         end
       end
+
+      if feature == "gene"
+        feature_id = gene_id
+      else
+        @feature_count[feature] += 1
+        locations = Bio::Locations.new(position)
+        min, max = locations.span
+        strand = locations.first.strand
+        feature_id = new_feature_uri(feature, min, max, strand, @feature_count[feature])
+      end
+
+      so_id = "SO:0000001"
+      so_obo_id = "obo:SO_0000001"
+      so_term = "region"
+      if so_id = @ft_so.so_id(feature)
+        if so_id != "undefined"
+          so_obo_id = @ft_so.obo_id(feature)
+          so_term = @ft_so.so_term(feature)
+        end
+      end
+      puts triple(feature_id, "rdf:type", so_obo_id) + "  # SO:#{so_term}"
       puts triple(feature_id, "rdfs:label", quote(locus_tag || gene || feature))
 
       parent_uri = @sequence_uri
@@ -561,9 +571,8 @@ class INSDC2RDF
       end
       puts triple(feature_id, "obo:so_part_of", parent_uri)
 
-      region_id, subparts = new_location(feature_id, feat.position)
-
-      if subparts.locations.size > 1
+      region_id, locations = new_location(feature_id, position)
+      if locations.count > 1
         if gene_id
           # link to exons in join(exon1, exon2, ...)
           feature_type = { :id => "obo:SO_0000147", :term => "exon" }
