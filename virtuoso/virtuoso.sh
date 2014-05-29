@@ -38,13 +38,26 @@ case "$1" in
         ${EDITOR:-vi} ${prefix}/var/lib/virtuoso/db/virtuoso.ini
         ;;
     loadrdf)
-        echo "log_enable(2,1);\nDB.DBA.RDF_LOAD_RDFXML_MT(file_to_string_output('$2'), '', '$3');\ncheckpoint;" | $isql
+        echo "
+          log_enable(2,1);
+          DB.DBA.RDF_LOAD_RDFXML_MT(file_to_string_output('$2'), '', '$3');
+          checkpoint;
+        " | $isql
         ;;
     loadttl)
-        echo "log_enable(2,1);\nDB.DBA.TTLP_MT(file_to_string_output('$2'), '', '$3', 81);\ncheckpoint;" | $isql
+        echo "
+          log_enable(2,1);
+          DB.DBA.TTLP_MT(file_to_string_output('$2'), '', '$3', 81);
+          checkpoint;
+        " | $isql
         ;;
     loaddir)
-        echo "log_enable(2,1);\nld_dir_all('$2', '$3', '$4');\nrdf_loader_run();\ncheckpoint;" | $isql
+        echo "
+          log_enable(2,1);
+          ld_dir_all('$2', '$3', '$4');
+          rdf_loader_run();
+          checkpoint;
+        " | $isql
         ;;
     watch)
         echo "SELECT COUNT(*) FROM DB.DBA.LOAD_LIST WHERE ll_state = 0;" | $isql
@@ -56,7 +69,11 @@ case "$1" in
         echo "SPARQL SELECT DISTINCT * WHERE { GRAPH <$2> {?s ?p ?o} } LIMIT 10;" | $isql
         ;;
     clear)
-        echo "log_enable(2,1);\nSPARQL CLEAR GRAPH <$2>;\ncheckpoint;" | $isql
+        echo "
+          log_enable(2,1);
+          SPARQL CLEAR GRAPH <$2>;
+          checkpoint;
+        " | $isql
         echo "SPARQL SELECT COUNT(*) FROM <$2> WHERE {?s ?p ?o};" | $isql
         echo "DELETE FROM DB.DBA.LOAD_LIST WHERE ll_graph = '$2';" | $isql
         echo "SPARQL DROP GRAPH <$2>;" | $isql
