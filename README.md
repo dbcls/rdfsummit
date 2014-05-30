@@ -2,7 +2,7 @@
 
 RDF summit organized by the Database Center for Life Science ([DBCLS](http://dbcls.rois.ac.jp/)).
 
-## The 1st RDF summit in 2014
+## The 1st RDF summit for genomics 2014
 
 Main theme of the 1st RDF summit is to standardize the RDF representation of
 genomic sequence annotations, locations and variations among
@@ -39,5 +39,8 @@ and popular data formats including
 
 * [BioInterchange](http://www.biointerchange.org/)
 * [insdc2ttl](https://github.com/dbcls/rdfsummit/tree/master/insdc2ttl)
+* [ensembl2ttl](https://github.com/dbcls/rdfsummit/tree/master/ensembl2ttl)
 * [taxdump2owl](https://github.com/dbcls/rdfsummit/tree/master/taxdump2owl)
+* [virtuoso.sh](https://github.com/dbcls/rdfsummit/tree/master/virtuoso)
+
 
