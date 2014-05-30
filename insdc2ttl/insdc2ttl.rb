@@ -52,6 +52,7 @@ module RDFSupport
       triple("@prefix", "rdfs:", "<http://www.w3.org/2000/01/rdf-schema#>"),
       #triple("@prefix", "dcterms:", "<http://purl.org/dc/terms/>"),
       triple("@prefix", "xsd:", "<http://www.w3.org/2001/XMLSchema#>"),
+      triple("@prefix", "skos:", "<http://www.w3.org/2004/02/skos/core#>"),
       triple("@prefix", "sio:", "<http://semanticscience.org/resource/>"),
       #triple("@prefix", "so:", "<http://purl.org/obo/owl/SO#>"),
       triple("@prefix", "obo:", "<http://purl.obolibrary.org/obo/>"),
@@ -542,6 +543,7 @@ class INSDC2RDF
         end
       end
 
+      # re-use URI for genes otherwise generate new URI
       if feature == "gene"
         feature_id = gene_id
       else
@@ -552,6 +554,7 @@ class INSDC2RDF
         feature_id = new_feature_uri(feature, min, max, strand, @feature_count[feature])
       end
 
+      # add type by Sequence Ontology
       so_id = "SO:0000001"
       so_obo_id = "obo:SO_0000001"
       so_term = "region"
@@ -561,9 +564,18 @@ class INSDC2RDF
           so_term = @ft_so.so_term(feature)
         end
       end
+
+      # feature types and labels
       puts triple(feature_id, "rdf:type", so_obo_id) + "  # SO:#{so_term}"
       puts triple(feature_id, "rdfs:label", quote(locus_tag || gene || feature))
+      if locus_tag || gene
+        puts triple(feature_id, "skos:prefLabel", quote(locus_tag || gene))
+      end
 
+      # feature qualifiers
+      parse_qualifiers(feature_id, hash)
+
+      # parent-child relationship (gene -> mRNA|CDS|misc_RNA etc.)
       parent_uri = @sequence_uri
       if gene_id and gene_id != feature_id
         parent_uri = gene_id
@@ -571,6 +583,7 @@ class INSDC2RDF
       end
       puts triple(feature_id, "obo:so_part_of", parent_uri)
 
+      # add FALDO location and subparts (exons etc.)
       region_id, locations = new_location(feature_id, position)
       if locations.count > 1
         if gene_id
@@ -584,8 +597,6 @@ class INSDC2RDF
         #puts triple(feature_id, "obo:so_has_part", "(#{subparts.join(' ')})")  # rdf:List
         puts triple(feature_id, "sio:SIO_000974", subparts.join(', ')) + "  # sio:has-ordered-part"
       end
-
-      parse_qualifiers(feature_id, hash)
     end
     $stderr.puts "Features: #{@feature_count.to_json}"
   end
