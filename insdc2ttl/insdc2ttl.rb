@@ -570,6 +570,11 @@ class INSDC2RDF
       puts triple(feature_id, "rdfs:label", quote(locus_tag || gene || feature))
       if locus_tag || gene
         puts triple(feature_id, "skos:prefLabel", quote(locus_tag || gene))
+        if hash["gene_synonym"]
+          hash["gene_synonym"].first.split(/;\s+/).each do |synonym|
+            puts triple(feature_id, "skos:altLabel", quote(synonym))
+          end
+        end
       end
 
       # feature qualifiers
