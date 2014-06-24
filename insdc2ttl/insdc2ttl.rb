@@ -435,10 +435,10 @@ class INSDC2RDF
   def sequence_link_biosample(str)
     id_pfx = "http://identifiers.org/biosample"
     xref_id = "<#{id_pfx}/#{str}>"
-    xred_type = "<#{id_pfx}#Entry>"
+    xref_type = "<#{id_pfx}#Entry>"
     puts triple(@sequence_uri, 'insdc:dblink', xref_id)
     puts triple(xref_id, 'rdfs:label', quote(str))
-    puts triple(xred_id, 'rdf:type', xref_type)
+    puts triple(xref_id, 'rdf:type', xref_type)
   end
 
   def sequence_ref(refs)
