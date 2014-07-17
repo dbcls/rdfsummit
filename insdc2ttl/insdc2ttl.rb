@@ -505,7 +505,8 @@ class INSDC2RDF
     genes.each do |gene|
       @feature_count[gene.feature] += 1
       locations = Bio::Locations.new(gene.position)
-      gene_id = new_feature_uri("gene", locations.first.from, locations.last.to, locations.first.strand, @feature_count[gene.feature])
+      from, to = locations.span
+      gene_id = new_feature_uri("gene", from, to, locations.first.strand, @feature_count[gene.feature])
       hash = gene.to_hash
 
       # try to cache gene IDs in the @gene hash for linking with other features (CDS, mRNA etc.)
