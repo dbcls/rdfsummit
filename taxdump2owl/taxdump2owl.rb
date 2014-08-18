@@ -39,7 +39,12 @@ module TaxonomyOntology
     #"@prefix taxo: <http://taxonomyontology.org/ontology#> .",
     #"@prefix taxo: <http://insdc.org/owl/taxonomy#> .",
     "@prefix taxid: <http://identifiers.org/taxonomy/> .",
+    "@prefix taxddbj: <http://ddbj.nig.ac.jp/ontologies/taxonomy/> .",
     "@prefix taxncbi: <http://www.ncbi.nlm.nih.gov/taxonomy/> .",
+    "@prefix taxobo0: <http://purl.obolibrary.org/obo/NCBITaxon_> .",
+    "@prefix taxobo1: <http://purl.org/obo/owl/NCBITaxon#> .",
+    "@prefix taxobo2: <http://www.berkeleybop.org/ontologies/owl/NCBITaxon#> .",
+    "@prefix taxup: <http://purl.uniprot.org/taxonomy/> .",
     #"@prefix codon: <http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi#> .",
     #"@prefix pmid: <http://pubmed.org/> .",
     "@prefix pubmed: <http://identifiers.org/pubmed/> .",
@@ -597,7 +602,12 @@ END_OF_ONTOLOGY
 
         puts triple(tax, "a", ":Taxon")
         puts triple(tax, "rdfs:subClassOf", "taxid:#{parent_tax_id}") if tax_id != parent_tax_id
-        puts triple(tax, "rdfs:seeAlso", "taxncbi:#{tax_id}")
+        puts triple(tax, "owl:sameAs", "taxddbj:#{tax_id}")
+        puts triple(tax, "owl:sameAs", "taxncbi:#{tax_id}")
+        puts triple(tax, "owl:sameAs", "taxobo0:#{tax_id}")
+        puts triple(tax, "owl:sameAs", "taxobo1:#{tax_id}")
+        puts triple(tax, "owl:sameAs", "taxobo2:#{tax_id}")
+        puts triple(tax, "rdfs:seeAlso", "taxup:#{tax_id}")
         puts triple(tax, ":rank", ":#{RANK_CLASS[rank]}")
         puts triple(tax, ":geneticCode", ":GeneticCode#{genetic_code_id}")
         puts triple(tax, ":geneticCodeMt", ":GeneticCode#{mitochondrial_genetic_code_id}")
