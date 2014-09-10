@@ -9,7 +9,7 @@
 #   % wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
 #   % mkdir taxdump
 #   % tar --directory=taxdump -xvf taxdump.tar.gz
-#   % ruby taxdump2owl.rb > taxdump.owl 2> taxcite.ttl
+#   % ruby taxdump2owl.rb > taxonomy.ttl 2> taxcite.ttl
 #
 
 module TurtleHelper
@@ -31,7 +31,7 @@ module TaxonomyOntology
     "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .",
     "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .",
     "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .",
-    #"@prefix dcterms: <http://purl.org/dc/terms/> .",
+    "@prefix dcterms: <http://purl.org/dc/terms/> .",
     #"@prefix sio: <http://semanticscience.org/resource#> .",
     #"@prefix so: <http://purl.org/obo/owl/SO#> .",
     #"@prefix obo: <http://purl.obolibrary.org/obo/> .",
@@ -56,7 +56,11 @@ module TaxonomyOntology
 
 <>
   a owl:Ontology ;
-  rdfs:comment "Taxonomy ontology generated from NCBI taxdump files" ;
+  rdfs:label "DDBJ taxonomy ontology" ;
+  rdfs:comment "DDBJ Taxonomy ontology is automatically generated from NCBI taxdump files" ;
+  rdfs:seeAlso <http://www.ncbi.nlm.nih.gov/taxonomy/> ;
+  rdfs:seeAlso <https://github.com/dbcls/rdfsummit/tree/master/taxdump2owl> ;
+  dcterms:license <http://creativecommons.org/licenses/by/4.0/> ;
   owl:versionInfo "#{Time.now.strftime('%Y-%m-%d')}"^^xsd:date .
 
 # properties
