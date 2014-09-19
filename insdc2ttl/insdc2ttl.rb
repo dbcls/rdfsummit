@@ -179,7 +179,7 @@ class INSDC2RDF
     @prefix = default_prefix + [
       #triple("@prefix", "genome:", "<http://purl.jp/bio/10/genome/>"),
       #triple("@prefix", "insdc:", "<http://insdc.org/owl/>"),
-      triple("@prefix", "insdc:", "<http://ddbj.nig.ac.jp/ontologies/sequence/>"),
+      triple("@prefix", "insdc:", "<http://ddbj.nig.ac.jp/ontologies/nucleotide/>"),
     ]
   end
 
