@@ -218,9 +218,9 @@ class INSDC2RDF
 
   def new_feature_uri(feature, from, to, strand, count = false)
     if count
-      "<#{@sequence_id}#feature:#{from}-#{to}:#{strand}/#{feature}:#{count}>"
+      "<#{@sequence_id}#feature:#{from}-#{to}:#{strand}:#{feature}.#{count}>"
     else
-      "<#{@sequence_id}#feature:#{from}-#{to}:#{strand}/#{feature}>"
+      "<#{@sequence_id}#feature:#{from}-#{to}:#{strand}:#{feature}>"
     end
   end
 
