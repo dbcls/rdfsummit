@@ -61,7 +61,7 @@ module TaxonomyOntology
   rdfs:seeAlso <http://www.ncbi.nlm.nih.gov/taxonomy/> ;
   rdfs:seeAlso <https://github.com/dbcls/rdfsummit/tree/master/taxdump2owl> ;
   dcterms:license <http://creativecommons.org/licenses/by/4.0/> ;
-  owl:versionInfo "#{Time.now.strftime('%Y-%m-%d')}"^^xsd:date .
+  owl:versionInfo "@@VERSION_INFO@@"^^xsd:date .
 
 # properties
 
@@ -584,6 +584,7 @@ END_OF_ONTOLOGY
     include TurtleHelper
 
     def initialize(hash = {:nodes => "nodes.dmp", :names => "names.dmp", :merged => "merged.dmp", :citations => "citations.dmp"})
+      ONTOLOGY.sub!("@@VERSION_INFO@@", File.mtime(hash[:nodes]).strftime('%Y-%m-%d'))
       output_header
       @citations = CitationsParser.new(hash[:citations])
       @merged = MergedParser.new(hash[:merged])
