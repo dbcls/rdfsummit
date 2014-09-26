@@ -154,8 +154,12 @@ class INSDC2RDF
     @rs_id = RS_ID.new
     @ft_so = FT_SO.new
 
-    # @datasource can be 'insdc' or 'refseq'
-    @entry_prefix = "http://identifiers.org/#{@datasource}/"
+    case @datasource
+    when /RefSeq/i
+      @entry_prefix = "http://identifiers.org/refseq/"
+    else # /INSDC|GenBank|ENA|DDBJ/i
+      @entry_prefix = "http://identifiers.org/insdc/"
+    end
 
     @gene = {}
     @xref_warn = {}
@@ -202,7 +206,7 @@ class INSDC2RDF
       uri = "<#{hash['prefix']}/#{id}>"
       puts triple(subject, "rdfs:seeAlso", uri)
       puts triple(uri, "rdfs:label", quote(id))
-      puts triple(uri, "rdf:type", "insdc:#{db}")
+      puts triple(uri, "rdf:type", "insdc:#{hash['class']}")
       puts triple(uri, "sio:SIO_000068", "<#{hash['prefix']}>") + "  # sio:is-part-of"
     else
       unless @xref_warn[db]
@@ -353,9 +357,13 @@ class INSDC2RDF
     sequence_type(@seqtype)
     sequence_length(@entry.nalen)
     sequence_form(@entry.circular)
+    sequence_division(@entry.division)
     # [TODO] rdfs:seeAlso (like UniProt) or dc:relation, owl:sameAs
-    sequence_link_gi(@entry.gi.sub('GI:',''))
-    sequence_link_accver(@entry.acc_version)
+    if @entry.gi[/GI:/]
+      sequence_link_gi(@entry.gi.sub('GI:',''))
+    end
+    sequence_link_accession(@entry.accession, @datasource)
+    sequence_link_accver(@entry.acc_version, @datasource)
     if bioproject = @entry.bioproject
       sequence_link_bioproject(bioproject)
     elsif project = @entry.project
@@ -364,8 +372,11 @@ class INSDC2RDF
     if biosample = @entry.biosample
       sequence_link_biosample(biosample)
     end
+    sequence_keywords(@entry.keywords)
+    sequence_source(@entry.source)
     # [TODO] how to deal with direct submissions (references without PMID)?
-    sequence_ref(@entry.references)
+    sequence_references(@entry.references)
+    sequence_comment(@entry.comment)
   end
 
   def sequence_type(so = "SO:sequence")
@@ -395,6 +406,7 @@ class INSDC2RDF
 
   def sequence_label(str)
     # Use "name:" key in the JSON representation
+    puts triple(@entry_uri, "insdc:definition", quote(str))
     puts triple(@entry_uri, "rdfs:label", quote(str))
   end
 
@@ -411,7 +423,8 @@ class INSDC2RDF
     # [TODO] where to obtain the actual DNA sequence? in what format?
     #puts triple(@sequence_uri, "rdfs:seeAlso", "<http://togows.org/entry/nucleotide/#{entry_id}.fasta>")
     puts triple(@sequence_uri, "rdfs:seeAlso", "<http://www.ncbi.nlm.nih.gov/nuccore/#{entry_id}?report=fasta>")
-    if @datasource == "insdc"
+    case @datasource
+    when /INSDC|GenBank|ENA|DDBJ/i
       #puts triple(@sequence_uri, "rdfs:seeAlso", "<http://togows.org/entry/embl/#{entry_id}.fasta>")
       puts triple(@sequence_uri, "rdfs:seeAlso", "<http://www.ebi.ac.uk/ena/data/view/#{entry_id}&display=fasta>")
       #puts triple(@sequence_uri, "rdfs:seeAlso", "<http://togows.org/entry/ddbj/#{entry_id}.fasta>")
@@ -430,12 +443,21 @@ class INSDC2RDF
     end
   end
 
+  def sequence_division(division)
+    # [TODO] Change to use classes which will be defined in INSDC/DDBJ ontology
+    puts triple(@entry_uri, 'insdc:division', "insdc:Division##{division}")
+  end
+
   def sequence_date(date)
     puts triple(@entry_uri, "insdc:sequence_date", quote(usdate2date(date))+"^^xsd:date")
   end
 
   def sequence_link_gi(str)
     xref(@entry_uri, 'GI', str)
+  end
+
+  def sequence_link_accession(str, source_db = 'RefSeq')
+    xref(@entry_uri, source_db, str)
   end
 
   def sequence_link_accver(str, source_db = 'RefSeq')
@@ -462,14 +484,53 @@ class INSDC2RDF
     puts triple(xred_id, 'sio:SIO_000068', "<#{id_pfx}>") + "  # sio:is-part-of"
   end
 
-  def sequence_ref(refs)
-    refs.each do |ref|
+  def sequence_keywords(keywords)
+    # [TODO] change to use controlled vocabulary in the INSDC/DDBJ ontology
+    keywords.each do |keyword|
+      name = quote(keyword).sub(/^"/, '').sub(/"$/, '')
+      puts triple(@entry_uri, 'insdc:keyword', "insdc:Keyword##{name}")
+    end
+  end
+
+  def sequence_source(source)
+    puts triple(@entry_uri, 'insdc:source', quote(source["common_name"]))
+    puts triple(@entry_uri, 'insdc:organism', quote(source["organism"]))
+    puts triple(@entry_uri, 'insdc:taxonomy', quote(source["taxonomy"]))
+  end
+
+  def sequence_references(references)
+    count = 1
+    references.each do |ref|
+      @reference_uri = new_reference_uri(count)
+      puts triple(@entry_uri, 'insdc:reference', @reference_uri)
+      puts triple(@reference_uri, 'sio:SIO_000300', count) + "  # sio:has-value"
+      puts triple(@reference_uri, 'insdc:reference#title', quote(ref.title)) if ref.title
+      ref.authors.each do |author|
+        puts triple(@reference_uri, 'insdc:reference#author', quote(author)) if author
+      end
+      puts triple(@reference_uri, 'insdc:reference#journal', quote(ref.journal)) if ref.journal
+      puts triple(@reference_uri, 'insdc:reference#volume', quote(ref.volume)) unless ref.volume.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference#issue', quote(ref.issue)) unless ref.issue.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference#pages', quote(ref.pages)) unless ref.pages.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference#year', quote(ref.year)) unless ref.year.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference#medline', quote(ref.medline)) unless ref.medline.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference#pubmed', quote(ref.pubmed)) unless ref.pubmed.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference#comments', quote(ref.comments)) unless ref.comments.to_s.empty?
       if pmid = ref.pubmed
         if pmid.length > 0
           xref(@entry_uri, 'PubMed', pmid)
         end
       end
+      count += 1
     end
+  end
+
+  def new_reference_uri(count)
+    "<#{@sequence_id}#reference.#{count}>"
+  end
+
+  def sequence_comment(comment)
+    puts triple(@entry_uri, 'insdc:comment', quote(comment))
   end
 
   ###
@@ -477,11 +538,11 @@ class INSDC2RDF
   ###
 
   def parse_source
-    # Use @entry_uri for @source_uri (instead of @sequence_uri)
-    @source_uri = @entry_uri
-
     hash = @source.to_hash
-    source_location(@source.position)
+    region_id, locations = source_location(@source.position)
+    from, to = locations.span
+    @source_uri = new_feature_uri(@source.feature, from, to, locations.first.strand)
+
     source_link(hash["db_xref"])
     hash.delete("db_xref")
     source_qualifiers(hash)
@@ -494,10 +555,12 @@ class INSDC2RDF
   def source_link(links)
     links.each do |link|
       db, entry_id = link.split(':', 2)
-      xref(@source_uri, db, entry_id)
       if db == "taxon"
+        xref(@source_uri, db, entry_id)
         @taxonomy_id = entry_id
         puts triple(@sequence_uri, "obo:RO_0002162", "<http://identifiers.org/taxonomy/#{@taxonomy_id}>") + "  # RO:in taxon"
+      else
+        xref(@source_uri, db, entry_id)
       end
     end
   end
@@ -716,7 +779,7 @@ if __FILE__ == $0
 
   opts = {
     :seqtype => "SO:sequence",
-    :datasource => "insdc",
+    :datasource => "insdc",     # Can be RefSeq, INSDC, GenBank, ENA, DDBJ
   }
 
   args.each_option do |name, value|
