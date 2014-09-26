@@ -555,12 +555,10 @@ class INSDC2RDF
   def source_link(links)
     links.each do |link|
       db, entry_id = link.split(':', 2)
+      xref(@source_uri, db, entry_id)
       if db == "taxon"
-        xref(@source_uri, db, entry_id)
         @taxonomy_id = entry_id
         puts triple(@sequence_uri, "obo:RO_0002162", "<http://identifiers.org/taxonomy/#{@taxonomy_id}>") + "  # RO:in taxon"
-      else
-        xref(@source_uri, db, entry_id)
       end
     end
   end
