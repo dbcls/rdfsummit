@@ -445,7 +445,7 @@ class INSDC2RDF
 
   def sequence_division(division)
     # [TODO] Change to use classes which will be defined in INSDC/DDBJ ontology
-    puts triple(@entry_uri, 'insdc:division', "insdc:Division##{division}")
+    puts triple(@entry_uri, 'insdc:division', "insdc:Division\\##{division}")
   end
 
   def sequence_date(date)
@@ -488,7 +488,7 @@ class INSDC2RDF
     # [TODO] change to use controlled vocabulary in the INSDC/DDBJ ontology
     keywords.each do |keyword|
       name = quote(keyword).sub(/^"/, '').sub(/"$/, '')
-      puts triple(@entry_uri, 'insdc:keyword', "insdc:Keyword##{name}")
+      puts triple(@entry_uri, 'insdc:keyword', "insdc:Keyword\\##{name}")
     end
   end
 
@@ -504,18 +504,20 @@ class INSDC2RDF
       @reference_uri = new_reference_uri(count)
       puts triple(@entry_uri, 'insdc:reference', @reference_uri)
       puts triple(@reference_uri, 'sio:SIO_000300', count) + "  # sio:has-value"
-      puts triple(@reference_uri, 'insdc:reference#title', quote(ref.title)) if ref.title
+      puts triple(@reference_uri, 'insdc:reference\\#title', quote(ref.title)) if ref.title
       ref.authors.each do |author|
-        puts triple(@reference_uri, 'insdc:reference#author', quote(author)) if author
+        puts triple(@reference_uri, 'insdc:reference\\#author', quote(author)) if author
       end
-      puts triple(@reference_uri, 'insdc:reference#journal', quote(ref.journal)) if ref.journal
-      puts triple(@reference_uri, 'insdc:reference#volume', quote(ref.volume)) unless ref.volume.to_s.empty?
-      puts triple(@reference_uri, 'insdc:reference#issue', quote(ref.issue)) unless ref.issue.to_s.empty?
-      puts triple(@reference_uri, 'insdc:reference#pages', quote(ref.pages)) unless ref.pages.to_s.empty?
-      puts triple(@reference_uri, 'insdc:reference#year', quote(ref.year)) unless ref.year.to_s.empty?
-      puts triple(@reference_uri, 'insdc:reference#medline', quote(ref.medline)) unless ref.medline.to_s.empty?
-      puts triple(@reference_uri, 'insdc:reference#pubmed', quote(ref.pubmed)) unless ref.pubmed.to_s.empty?
-      puts triple(@reference_uri, 'insdc:reference#comments', quote(ref.comments)) unless ref.comments.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference\\#journal', quote(ref.journal)) if ref.journal
+      puts triple(@reference_uri, 'insdc:reference\\#volume', quote(ref.volume)) unless ref.volume.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference\\#issue', quote(ref.issue)) unless ref.issue.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference\\#pages', quote(ref.pages)) unless ref.pages.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference\\#year', quote(ref.year)) unless ref.year.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference\\#medline', quote(ref.medline)) unless ref.medline.to_s.empty?
+      puts triple(@reference_uri, 'insdc:reference\\#pubmed', quote(ref.pubmed)) unless ref.pubmed.to_s.empty?
+      ref.comments.each do |comment|
+        puts triple(@reference_uri, 'insdc:reference\\#comments', quote(comment)) unless comment.to_s.empty?
+      end if ref.comments
       if pmid = ref.pubmed
         if pmid.length > 0
           xref(@entry_uri, 'PubMed', pmid)
