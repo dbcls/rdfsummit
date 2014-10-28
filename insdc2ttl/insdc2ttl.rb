@@ -270,7 +270,7 @@ class INSDC2RDF
 
       #puts triple(subpart_id, "obo:so_part_of", region_id)
       puts triple(subpart_id, "sio:SIO_000300", count) + "  # sio:has-value"
-      puts triple(subpart_id, "sio:SIO_000628", subfeature_id) + "  # sio:referes-to"
+      puts triple(subpart_id, "sio:SIO_000628", subfeature_id) + "  # sio:refers-to"
       puts triple(subfeature_id, "rdf:type", "insdc:#{feature_type[:ft]}")
       puts triple(subfeature_id, "rdfs:subClassOf", feature_type[:id]) + "  # SO:#{feature_type[:term]}"
       new_faldo_region(subfeature_id, loc.from, loc.to, loc.strand, loc.strand, loc.lt, loc.gt)
