@@ -538,7 +538,6 @@ END_OF_ONTOLOGY
   class CitationsParser < Parser
     def parse
       File.open(@filename).each do |line|
-        # ["38659", "Hirayama et al. (2014)", "0", "0", "http://dx.doi.org/10.5943/mycosphere/"]
         cit_id, cit_key, pubmed_id, medline_id, url, text, taxid_list, = *dmp_split(line)
         next if [pubmed_id, url, cit_key, text].map{|x| x.to_s}.join.empty?
         citation = Citation.new(pubmed_id, url, cit_key, text)
