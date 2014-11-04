@@ -507,9 +507,9 @@ END_OF_ONTOLOGY
 
     def initialize(pmid, url, key, text)
       @pmid = pmid.to_i > 0 ? pmid : nil
-      @url = url.length > 0 ? url : nil
-      @key = key.length > 0 ? key : nil
-      @text = text.length > 0 ? text : nil
+      @url = url.to_s.length > 0 ? url : nil
+      @key = key.to_s.length > 0 ? key : nil
+      @text = text.to_s.length > 0 ? text : nil
     end
   end
 
@@ -538,13 +538,14 @@ END_OF_ONTOLOGY
   class CitationsParser < Parser
     def parse
       File.open(@filename).each do |line|
+        # ["38659", "Hirayama et al. (2014)", "0", "0", "http://dx.doi.org/10.5943/mycosphere/"]
         cit_id, cit_key, pubmed_id, medline_id, url, text, taxid_list, = *dmp_split(line)
-        next if (pubmed_id + url + cit_key + text).empty?
+        next if [pubmed_id, url, cit_key, text].map{|x| x.to_s}.join.empty?
         citation = Citation.new(pubmed_id, url, cit_key, text)
         taxid_list.split(/\s+/).each do |tax_id|
           @hash[tax_id] ||= []
           @hash[tax_id] << citation
-        end
+        end if taxid_list
       end
     end
   end
