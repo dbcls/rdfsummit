@@ -2,6 +2,7 @@
 
 require 'rubygems'
 require 'uri'
+require 'cgi'
 require 'bio'
 require 'json'
 require 'securerandom'
@@ -184,6 +185,8 @@ class INSDC2RDF
       #triple("@prefix", "genome:", "<http://purl.jp/bio/10/genome/>"),
       #triple("@prefix", "insdc:", "<http://insdc.org/owl/>"),
       triple("@prefix", "insdc:", "<http://ddbj.nig.ac.jp/ontologies/nucleotide/>"),
+      triple("@prefix", "insdcdiv:", "<http://ddbj.nig.ac.jp/ontologies/nucleotide/Division#>"),
+      triple("@prefix", "insdcref:", "<http://ddbj.nig.ac.jp/ontologies/nucleotide/reference#>"),
     ]
   end
 
@@ -383,17 +386,31 @@ class INSDC2RDF
     case so
     when /0000001/, "SO:region", "SO:sequence"
       puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000001") + "  # SO:sequence"
-    when /0000340/, "SO:chromosome"
+    when /0000340/, "SO:chromosome", "Chromosome", "Gapless Chromosome"
       puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000340") + "  # SO:chromosome"
-    when /0000155/, "SO:plasmid"
+    when /0000155/, "SO:plasmid", "Plasmid", "Mitochondrial Plasmid"
       puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000155") + "  # SO:plasmid"
+    when /0000819/, "SO:mitochondrial_chromosome", "Mitochondrion"
+      puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000819") + "  # SO:mitochondrial_chromosome"
+    when /0000820/, "SO:chloroplast_chromosome", "Chloroplast"
+      puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000820") + "  # SO:chloroplast_chromosome"
+    when /0000745/, "SO:chloroplast_sequence"
+      puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000745") + "  # SO:chloroplast_sequence"
+    when /0000740/, "SO:plastid_sequence", "Plastid"
+      puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000740") + "  # SO:plastid_sequence"
+    when /0001041/, "SO:viral_sequence", "Virus", "Virus Chromosome", "Provirus Chromosome"
+      puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0001041") + "  # SO:viral_sequence"
+    when /0001259/, "SO:apicoplast_chromosome", "Apicoplast"
+      puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0001259") + "  # SO:apicoplast_chromosome"
+    when /0000743/, "SO:apicoplast_sequence"
+      puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000743") + "  # SO:apicoplast_sequence"
     when /0000736/, "SO:organelle_sequence"
       puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000736") + "  # SO:organelle_sequence"
-    when /0000819/, "SO:mitochondrial_chromosome"
-      puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000819") + "  # SO:mitochondrial_chromosome"
-    when /0000740/, "SO:plastid_sequence"
-      puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000740") + "  # SO:plastid_sequence"
-    when /0000719/, "SO:ultracontig"
+    when /0000353/, "SO:biological_region", "Extrachromosal Element", "Non-nuclear Miscellaneous"
+      puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000353") + "  # SO:biological_region"
+    when /0000018/, "SO:linkage_group", "Linkage Group"
+      puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000018") + "  # SO:SO:linkage_group"
+    when /0000719/, "SO:ultracontig", "Chromosome with gaps"
       puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000719") + "  # SO:ultracontig"
     when /0000148/, "SO:supercontig", "SO:scaffold"
       puts triple(@sequence_uri, "rdfs:subClassOf", "obo:SO_0000148") + "  # SO:supercontig/scaffold"
@@ -445,7 +462,7 @@ class INSDC2RDF
 
   def sequence_division(division)
     # [TODO] Change to use classes which will be defined in INSDC/DDBJ ontology
-    puts triple(@entry_uri, 'insdc:division', "insdc:Division\\##{division}")
+    puts triple(@entry_uri, 'insdc:division', "insdcdiv:#{division}")
   end
 
   def sequence_date(date)
@@ -486,9 +503,11 @@ class INSDC2RDF
 
   def sequence_keywords(keywords)
     # [TODO] change to use controlled vocabulary in the INSDC/DDBJ ontology
+    keyword_prefix = "http://ddbj.nig.ac.jp/ontologies/nucleotide/Keyword#"
     keywords.each do |keyword|
       name = quote(keyword).sub(/^"/, '').sub(/"$/, '')
-      puts triple(@entry_uri, 'insdc:keyword', "insdc:Keyword\\##{name}")
+      puts triple(@entry_uri, 'insdc:keyword', "<#{keyword_prefix}#{CGI.escape(name)}>")
+      puts triple("<#{keyword_prefix}#{CGI.escape(name)}>", 'rdfs:label', quote(name))
     end
   end
 
@@ -504,19 +523,19 @@ class INSDC2RDF
       @reference_uri = new_reference_uri(count)
       puts triple(@entry_uri, 'insdc:reference', @reference_uri)
       puts triple(@reference_uri, 'sio:SIO_000300', count) + "  # sio:has-value"
-      puts triple(@reference_uri, 'insdc:reference\\#title', quote(ref.title)) if ref.title
+      puts triple(@reference_uri, 'insdcref:title', quote(ref.title)) if ref.title
       ref.authors.each do |author|
-        puts triple(@reference_uri, 'insdc:reference\\#author', quote(author)) if author
+        puts triple(@reference_uri, 'insdcref:author', quote(author)) if author
       end
-      puts triple(@reference_uri, 'insdc:reference\\#journal', quote(ref.journal)) if ref.journal
-      puts triple(@reference_uri, 'insdc:reference\\#volume', quote(ref.volume)) unless ref.volume.to_s.empty?
-      puts triple(@reference_uri, 'insdc:reference\\#issue', quote(ref.issue)) unless ref.issue.to_s.empty?
-      puts triple(@reference_uri, 'insdc:reference\\#pages', quote(ref.pages)) unless ref.pages.to_s.empty?
-      puts triple(@reference_uri, 'insdc:reference\\#year', quote(ref.year)) unless ref.year.to_s.empty?
-      puts triple(@reference_uri, 'insdc:reference\\#medline', quote(ref.medline)) unless ref.medline.to_s.empty?
-      puts triple(@reference_uri, 'insdc:reference\\#pubmed', quote(ref.pubmed)) unless ref.pubmed.to_s.empty?
+      puts triple(@reference_uri, 'insdcref:journal', quote(ref.journal)) if ref.journal
+      puts triple(@reference_uri, 'insdcref:volume', quote(ref.volume)) unless ref.volume.to_s.empty?
+      puts triple(@reference_uri, 'insdcref:issue', quote(ref.issue)) unless ref.issue.to_s.empty?
+      puts triple(@reference_uri, 'insdcref:pages', quote(ref.pages)) unless ref.pages.to_s.empty?
+      puts triple(@reference_uri, 'insdcref:year', quote(ref.year)) unless ref.year.to_s.empty?
+      puts triple(@reference_uri, 'insdcref:medline', quote(ref.medline)) unless ref.medline.to_s.empty?
+      puts triple(@reference_uri, 'insdcref:pubmed', quote(ref.pubmed)) unless ref.pubmed.to_s.empty?
       ref.comments.each do |comment|
-        puts triple(@reference_uri, 'insdc:reference\\#comments', quote(comment)) unless comment.to_s.empty?
+        puts triple(@reference_uri, 'insdcref:comments', quote(comment)) unless comment.to_s.empty?
       end if ref.comments
       if pmid = ref.pubmed
         if pmid.length > 0
@@ -779,7 +798,7 @@ if __FILE__ == $0
 
   opts = {
     :seqtype => "SO:sequence",
-    :datasource => "insdc",     # Can be RefSeq, INSDC, GenBank, ENA, DDBJ
+    :datasource => "INSDC",     # Can be RefSeq, INSDC, GenBank, ENA, DDBJ
   }
 
   args.each_option do |name, value|
