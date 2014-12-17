@@ -498,7 +498,7 @@ class INSDC2RDF
     puts triple(@entry_uri, 'insdc:dblink', xref_id)
     puts triple(xref_id, 'rdfs:label', quote(str))
     puts triple(xref_id, 'rdf:type', "insdc:BioSample")
-    puts triple(xred_id, 'sio:SIO_000068', "<#{id_pfx}>") + "  # sio:is-part-of"
+    puts triple(xref_id, 'sio:SIO_000068', "<#{id_pfx}>") + "  # sio:is-part-of"
   end
 
   def sequence_keywords(keywords)
