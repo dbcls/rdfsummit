@@ -221,6 +221,173 @@
     "label": "Pseudomonas Genome Database",  // custom
     "class": "PseudoCap",
     "prefix": "http://identifiers.org/pseudocap"
+  },
+ /*
+   * Add INSDC db_xref AVAILABLE IN Identifiers.org
+   *  source:
+   *    http://www.insdc.org/documents/dbxref-qualifier-vocabulary
+   *  mapping data:
+   *    https://docs.google.com/a/g.nig.ac.jp/spreadsheets/d/1j_wZgsjah4ETiNpRcxjr6g7zfU4mWVZuc6A2Ot6DCU0/edit#gid=0
+   */
+  // http://www.ebi.ac.uk/miriam/main/collections/MIR:00000282
+  "AceView/WormGenes": {
+    "label": "AceView Worm Genome", 
+    "class": "AceView/WormGenes",
+    "prefix": "http://identifiers.org/aceview.worm/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/main/collections/MIR:00000411
+  "AFTOL": {
+    "label": "Assembling the Fungal Tree of Life", 
+    "class": "AFTOL",
+    "prefix": "http://identifiers.org/aftol.taxonomy"
+  },
+
+  // http://www.ebi.ac.uk/miriam/main/collections/MIR:00000146
+  "AntWeb": {
+    "label": "Ant Database", 
+    "class": "AntWeb",
+    "prefix": "http://identifiers.org/antweb/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/main/collections/MIR:00000157
+  "BEETLEBASE": {
+    "label": "Tribolium Genome Database -- Insertion", 
+    "class": "BEETLEBASE",
+    "prefix": "http://identifiers.org/beetlebase/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/main/collections/MIR:00000159
+  "dbEST": {
+    "label": "EST database maintained at the NCBI.", 
+    "class": "dbEST",
+    "prefix": "http://identifiers.org/dbest/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/main/collections/MIR:00000161
+  "dbSNP": {
+    "label": "Variation database maintained at the NCBI.", 
+    "class": "dbSNP",
+    "prefix": "http://identifiers.org/dbsnp/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/main/collections/MIR:00000330
+  "dictyBase": {
+    "label": "Dictyostelium genome database", 
+    "class": "dictyBase",
+    "prefix": "http://identifiers.org/dictybase.est/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/main/collections/MIR:00000003
+  "ENSEMBL": {
+    "label": "Database of automatically annotated genomic data", 
+    "class": "ENSEMBL",
+    "prefix": "http://identifiers.org/ensembl/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000410
+  "FBOL": {
+    "label": "International Fungal Working Group Fungal Barcoding", 
+    "class": "FBOL",
+    "prefix": "http://identifiers.org/fbol/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000030
+  "FLYBASE": {
+    "label": "Database of Genetic and molecular data of Drosophila.", 
+    "class": "FLYBASE",
+    "prefix": "http://identifiers.org/flybase/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000164
+  "GABI": {
+    "label": "Network of Different Plant Genomic Research Projects", 
+    "class": "GABI",
+    "prefix": "http://identifiers.org/gabi/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000168
+  "H-InvDB": {
+    "label": "H-Invitational Database", 
+    "class": "H-InvDB",
+    "prefix": "http://identifiers.org/hinv.transcript/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000287
+  "IMGT/LIGM": {
+    "label": "Immunogenetics database, immunoglobulins and T-cell receptors", 
+    "class": "IMGT/LIGM",
+    "prefix": "http://identifiers.org/imgt.ligm/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000331
+  "IMGT/HLA": {
+    "label": "Immunogenetics database, human MHC", 
+    "class": "IMGT/HLA",
+    "prefix": "http://identifiers.org/imgt.hla/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000174
+  "JCM": {
+    "label": "Japan Collection of Microorganisms", 
+    "class": "JCM",
+    "prefix": "http://identifiers.org/jcm/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000177
+  "MaizeGDB": {
+    "label": "Maize Genome Database unique identifiers", 
+    "class": "MaizeGDB",
+    "prefix": "http://identifiers.org/maizegdb.locus/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000037
+  "MGI": {
+    "label": "Mouse Genome Informatics", 
+    "class": "MGI",
+    "prefix": "http://identifiers.org/mgd/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000305
+  "niaEST": {
+    "label": "NIA Mouse cDNA Project", 
+    "class": "niaEST",
+    "prefix": "http://identifiers.org/niaest/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000335
+  "PomBase": {
+    "label": "Database of Structural and Functional Data for Schizosaccaromyces pombe", 
+    "class": "PomBase",
+    "prefix": "http://identifiers.org/pombase/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000047
+  "RGD": {
+    "label": "Rat Genome Database", 
+    "class": "RGD",
+    "prefix": "http://identifiers.org/rgd/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000023
+  "SGD": {
+    "label": "Saccharomyces Genome Database", 
+    "class": "SGD",
+    "prefix": "http://identifiers.org/sgd/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000433
+  "SubtiList": {
+    "label": "Bacillus subtilis genome sequencing project", 
+    "class": "SubtiList",
+    "prefix": "http://identifiers.org/subtilist/"
+  },
+
+  // http://www.ebi.ac.uk/miriam/cura/collections/MIR:00000050
+  "TAIR": {
+    "label": "The Arabidopsis Information Resource", 
+    "class": "TAIR",
+    "prefix": "http://identifiers.org/tair.locus/"
   }
 }
 
