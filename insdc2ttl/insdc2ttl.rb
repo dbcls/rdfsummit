@@ -608,6 +608,7 @@ class INSDC2RDF
   # parse genes first to collect gene IDs for mRNA, CDS etc. (then parse rest of features)
   def parse_genes
     genes = @features.select {|x| x.feature == "gene"}
+    check = Hash.new(0)
   
     genes.each do |gene|
       @feature_count[gene.feature] += 1
@@ -626,6 +627,10 @@ class INSDC2RDF
       else
         # [TODO] where else to find gene name?
       end
+      check[@gene[gene]] += 1
+    end
+    check.each do |k, v|
+      $stderr.puts "Warning: gene ID #{k} occured #{v} times" if v > 1
     end
   end
 
