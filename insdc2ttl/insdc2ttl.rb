@@ -563,6 +563,8 @@ class INSDC2RDF
     region_id, locations = source_location(@source.position)
     from, to = locations.span
     @source_uri = new_feature_uri(@source.feature, from, to, locations.first.strand)
+    #puts triple(@entry_uri, 'insdc:source', @source_uri)
+    puts triple(@source_uri, "obo:so_part_of", @sequence_uri)
 
     source_link(hash["db_xref"])
     hash.delete("db_xref")
