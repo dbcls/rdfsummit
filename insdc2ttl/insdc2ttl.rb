@@ -51,6 +51,7 @@ module RDFSupport
     return [
       triple("@prefix", "rdf:", "<http://www.w3.org/1999/02/22-rdf-syntax-ns#>"),
       triple("@prefix", "rdfs:", "<http://www.w3.org/2000/01/rdf-schema#>"),
+      triple("@prefix", "dc:", "<http://purl.org/dc/elements/1.1/>"),
       #triple("@prefix", "dcterms:", "<http://purl.org/dc/terms/>"),
       triple("@prefix", "xsd:", "<http://www.w3.org/2001/XMLSchema#>"),
       triple("@prefix", "skos:", "<http://www.w3.org/2004/02/skos/core#>"),
@@ -688,6 +689,7 @@ class INSDC2RDF
       # to make compatible with Ensembl RDF
       puts triple(feature_id, "obo:RO_0002162", "<http://identifiers.org/taxonomy/#{@taxonomy_id}>") + "  # RO:in taxon"
       puts triple(feature_id, "rdfs:label", quote(locus_tag || gene || feature))
+      puts triple(feature_id, "dc:identifier", quote(locus_tag || gene || feature))
       if locus_tag || gene
         puts triple(feature_id, "skos:prefLabel", quote(locus_tag || gene))
         if hash["gene_synonym"]
@@ -713,7 +715,7 @@ class INSDC2RDF
 
       # add FALDO location and subparts (exons etc.)
       region_id, locations = new_location(feature_id, position)
-      if locations.count > 1
+#     if locations.count > 1
         if gene_id
           # link to exons in join(exon1, exon2, ...)
           feature_type = { :id => "obo:SO_0000147", :term => "exon", :ft => "Exon" }
@@ -727,7 +729,7 @@ class INSDC2RDF
         puts triple(feature_id, "obo:so_has_part", sub_parts.join(', '))
         # part URIs
         puts triple(feature_id, "sio:SIO_000974", sub_ordered_parts.join(', ')) + "  # sio:has-ordered-part"
-      end
+#     end
     end
     $stderr.puts "Features: #{@feature_count.to_json}"
   end
