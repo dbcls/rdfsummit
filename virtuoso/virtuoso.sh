@@ -59,7 +59,7 @@ case $1 in
     loaddir)
         echo "
           log_enable(2,1);
-          ld_dir_all('$4', '$2', '$3');
+          ld_dir_all('$3', '$4', '$2');
           rdf_loader_run();
           checkpoint;
         " | ${isql}
