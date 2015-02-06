@@ -131,17 +131,6 @@ class FT_SO
   # puts ftso.so_encoding("tRNA")  # => "SO:0000663" (tRNA_encoding)
   def so_encoding(feature)
     if hash = @data[feature]
-=begin
-#if feature == "miRNA"
-  puts ">>feature"
-  puts feature
-  puts ">>data"
-  puts @data["miRNA"]
-  puts ">>hash"
-  puts hash
-  exit if feature == "miRNA"
-#end
-=end
       if hash["encoding"]
         return hash["encoding"]
       end
