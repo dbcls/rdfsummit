@@ -110,8 +110,8 @@ class FT_SO
   end
 
   # puts ftso.so_id("-10_signal")  # => "obo:SO_0000175"
-  def obo_id(feature)
-    return "obo:" + so_id(feature).sub(':', '_')
+  def obo_id(so_id)
+    return "obo:" + so_id.sub(':', '_')
   end
 
   # puts ftso.so_term("-10_signal")  # => "minus_10_signal"
@@ -125,6 +125,26 @@ class FT_SO
   def so_desc(feature)
     if hash = @data[feature]
       return hash["so_desc"]
+    end
+  end
+
+  # puts ftso.so_encoding("tRNA")  # => "SO:0000663" (tRNA_encoding)
+  def so_encoding(feature)
+    if hash = @data[feature]
+=begin
+#if feature == "miRNA"
+  puts ">>feature"
+  puts feature
+  puts ">>data"
+  puts @data["miRNA"]
+  puts ">>hash"
+  puts hash
+  exit if feature == "miRNA"
+#end
+=end
+      if hash["encoding"]
+        return hash["encoding"]
+      end
     end
   end
 
@@ -647,14 +667,14 @@ class INSDC2RDF
       position = feat.position
 
       # try to link gene-related features (CDS, mRNA etc.) by matching /locus_tag or /gene qualifier values
-      hash = feat.to_hash
+      qual = feat.to_hash
       gene_id = locus_tag = gene = nil
-      if hash["locus_tag"]
-        if locus_tag = hash["locus_tag"].first
+      if qual["locus_tag"]
+        if locus_tag = qual["locus_tag"].first
           gene_id = @gene[locus_tag]
         end
-      elsif hash["gene"]
-        if gene = hash["gene"].first
+      elsif qual["gene"]
+        if gene = qual["gene"].first
           gene_id = @gene[gene]
         end
       end
@@ -677,7 +697,7 @@ class INSDC2RDF
       ft_id = "Feature"
       if so_id = @ft_so.so_id(feature)
         if so_id != "undefined"
-          so_obo_id = @ft_so.obo_id(feature)
+          so_obo_id = @ft_so.obo_id(so_id)
           so_term = @ft_so.so_term(feature)
           ft_id = @ft_so.ft_id(feature)
         end
@@ -692,15 +712,15 @@ class INSDC2RDF
       puts triple(feature_id, "dc:identifier", quote(locus_tag || gene || feature))
       if locus_tag || gene
         puts triple(feature_id, "skos:prefLabel", quote(locus_tag || gene))
-        if hash["gene_synonym"]
-          hash["gene_synonym"].first.split(/;\s+/).each do |synonym|
+        if qual["gene_synonym"]
+          qual["gene_synonym"].first.split(/;\s+/).each do |synonym|
             puts triple(feature_id, "skos:altLabel", quote(synonym))
           end
         end
       end
 
       # feature qualifiers
-      parse_qualifiers(feature_id, hash)
+      parse_qualifiers(feature_id, qual)
 
       # parent-child relationship (gene -> mRNA|CDS|misc_RNA etc.)
       parent_uri = @sequence_uri
@@ -709,7 +729,18 @@ class INSDC2RDF
         puts triple(feature_id, "sio:SIO_010081", gene_id) + "  # sio:is-transcribed-from"
         # to make compatible with Ensembl RDF
         puts triple(feature_id, "rdfs:subClassOf", "obo:SO_0000673") + "  # SO:transcript"
-        puts triple(gene_id, "rdfs:subClassOf", "obo:SO_0000010") + "  # SO:protein_coding"
+        if encoding = @ft_so.so_encoding(feature)
+          if feature == "ncRNA"
+            if ncrna_class = qual["ncRNA_class"]
+              if @ft_so.so_encoding(ncrna_class.first)
+                encoding = @ft_so.so_encoding(ncrna_class.first)
+              end
+            end
+          end
+          so_encoding_id = encoding["so_id"]
+          so_encoding_term = encoding["so_term"]
+          puts triple(gene_id, "rdfs:subClassOf", @ft_so.obo_id(so_encoding_id)) + "  # SO:#{so_encoding_term}"
+        end
       end
       puts triple(feature_id, "obo:so_part_of", parent_uri)
 
