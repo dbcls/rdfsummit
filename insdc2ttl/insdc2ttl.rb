@@ -434,7 +434,6 @@ class INSDC2RDF
   def sequence_label(str)
     # Use "name:" key in the JSON representation
     puts triple(@entry_uri, "insdc:definition", quote(str))
-    puts triple(@entry_uri, "rdfs:label", quote(str))
   end
 
   def sequence_version(str)
