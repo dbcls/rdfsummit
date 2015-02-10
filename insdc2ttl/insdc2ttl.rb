@@ -219,6 +219,7 @@ class INSDC2RDF
       uri = "<#{hash['prefix']}/#{id}>"
       puts triple(subject, "rdfs:seeAlso", uri)
       puts triple(uri, "rdfs:label", quote(id))
+      puts triple(uri, "dc:identifier", quote(id))
       puts triple(uri, "rdf:type", "insdc:#{hash['class']}")
       puts triple(uri, "sio:SIO_000068", "<#{hash['prefix']}>") + "  # sio:is-part-of"
     else
@@ -434,7 +435,7 @@ class INSDC2RDF
   def sequence_label(str)
     # Use "name:" key in the JSON representation
     puts triple(@entry_uri, "insdc:definition", quote(str))
-    puts triple(@entry_uri, "rdfs:label", quote(str))
+    puts triple(@entry_uri, "rdfs:comment", quote(str))
   end
 
   def sequence_version(str)
@@ -698,7 +699,7 @@ class INSDC2RDF
       # to make compatible with Ensembl RDF
       puts triple(feature_id, "obo:RO_0002162", "<http://identifiers.org/taxonomy/#{@taxonomy_id}>") + "  # RO:in taxon"
       puts triple(feature_id, "rdfs:label", quote(locus_tag || gene || feature))
-      puts triple(feature_id, "dc:identifier", quote(locus_tag || gene || feature))
+      puts triple(feature_id, "dc:identifier", quote(locus_tag || gene)) if locus_tag || gene
       if locus_tag || gene
         puts triple(feature_id, "skos:prefLabel", quote(locus_tag || gene))
         if qual["gene_synonym"]
