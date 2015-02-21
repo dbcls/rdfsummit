@@ -31,6 +31,7 @@ module TaxonomyOntology
     "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .",
     "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .",
     "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .",
+    "@prefix dc: <http://purl.org/dc/elements/1.1/> .",
     "@prefix dcterms: <http://purl.org/dc/terms/> .",
     #"@prefix sio: <http://semanticscience.org/resource#> .",
     #"@prefix so: <http://purl.org/obo/owl/SO#> .",
@@ -607,6 +608,7 @@ END_OF_ONTOLOGY
 
         puts triple(tax, "a", ":Taxon")
         puts triple(tax, "rdfs:subClassOf", "taxid:#{parent_tax_id}") if tax_id != parent_tax_id
+        puts triple(tax, "dc:identifier", "#{tax_id}")
         puts triple(tax, "owl:sameAs", "taxddbj:#{tax_id}")
         puts triple(tax, "owl:sameAs", "taxncbi:#{tax_id}")
         puts triple(tax, "owl:sameAs", "taxobo0:#{tax_id}")
