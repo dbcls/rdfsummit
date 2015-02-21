@@ -608,7 +608,7 @@ END_OF_ONTOLOGY
 
         puts triple(tax, "a", ":Taxon")
         puts triple(tax, "rdfs:subClassOf", "taxid:#{parent_tax_id}") if tax_id != parent_tax_id
-        puts triple(tax, "dc:identifier", "#{tax_id}")
+        puts triple(tax, "dcterms:identifier", "#{tax_id}")
         puts triple(tax, "owl:sameAs", "taxddbj:#{tax_id}")
         puts triple(tax, "owl:sameAs", "taxncbi:#{tax_id}")
         puts triple(tax, "owl:sameAs", "taxobo0:#{tax_id}")
