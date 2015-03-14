@@ -341,7 +341,7 @@ class INSDC2RDF
       @source = @features.shift
       parse_sequence
       parse_source
-      parse_genes
+      #parse_genes
       parse_features
     end
   end
@@ -618,7 +618,8 @@ class INSDC2RDF
   ### Genes
   ###
 
-  # parse genes first to collect gene IDs for mRNA, CDS etc. (then parse rest of features)
+  # parse genes first to collect gene IDs for mRNA, CDS etc. (then parse rest of features) to reserve URIs (originally for UUIDs)
+  # 2015/3/14 not used as there are some genes which has same name; this strategy can't assign different URIs for them
   def parse_genes
     genes = @features.select {|x| x.feature == "gene"}
     check = Hash.new(0)
@@ -652,33 +653,34 @@ class INSDC2RDF
   ###
 
   def parse_features
+    check = Hash.new(0)
     @features.each do |feat|
       feature = feat.feature
       position = feat.position
 
       # try to link gene-related features (CDS, mRNA etc.) by matching /locus_tag or /gene qualifier values
       qual = feat.to_hash
-      gene_id = locus_tag = gene = nil
+      gene_name = locus_tag = gene = nil
       if qual["locus_tag"]
         if locus_tag = qual["locus_tag"].first
-          gene_id = @gene[locus_tag]
+          gene_name = locus_tag
         end
       elsif qual["gene"]
         if gene = qual["gene"].first
-          gene_id = @gene[gene]
+          gene_name = gene
         end
       end
 
-      # re-use URI for genes otherwise generate new URI
+      @feature_count[feature] += 1
+      locations = Bio::Locations.new(position)
+      min, max = locations.span
+      strand = locations.first.strand
+      feature_id = new_feature_uri(feature, min, max, strand, @feature_count[feature])
       if feature == "gene"
-        feature_id = gene_id
-      else
-        @feature_count[feature] += 1
-        locations = Bio::Locations.new(position)
-        min, max = locations.span
-        strand = locations.first.strand
-        feature_id = new_feature_uri(feature, min, max, strand, @feature_count[feature])
+        @gene[gene_name] = feature_id
+        check[gene_name] += 1
       end
+      gene_id = @gene[gene_name]  # expect that "gene" feature appears before "CDS", "mRNA", etc. features derived from a gene (otherwize use parse_genes() for fail-safe)
 
       # add type by Sequence Ontology
       so_id = "SO:0000001"
@@ -736,7 +738,8 @@ class INSDC2RDF
 
       # add FALDO location and subparts (exons etc.)
       region_id, locations = new_location(feature_id, position)
-#     if locations.count > 1
+      # Uncomment to eliminate single exon genes.
+      #if locations.count > 1
         if gene_id
           # link to exons in join(exon1, exon2, ...)
           feature_type = { :id => "obo:SO_0000147", :term => "exon", :ft => "Exon" }
@@ -750,9 +753,12 @@ class INSDC2RDF
         puts triple(feature_id, "obo:so_has_part", sub_parts.join(', '))
         # part URIs
         puts triple(feature_id, "sio:SIO_000974", sub_ordered_parts.join(', ')) + "  # sio:has-ordered-part"
-#     end
+      #end
     end
     $stderr.puts "Features: #{@feature_count.to_json}"
+    check.each do |k, v|
+      $stderr.puts "Warning: gene ID #{k} occured #{v} times" if v > 1
+    end
   end
 
   def parse_qualifiers(feature_id, hash)
