@@ -4,7 +4,7 @@
 # * ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_refseq.txt
 #
 
-#[" assembly_id", "GCF_000001215.2"]
+#["assembly_accession", "GCF_000001215.2"]
 #["bioproject", "PRJNA164"]
 #["biosample", "na"]
 #["wgs_master", "AABU00000000.1"]
@@ -27,39 +27,42 @@
 
 
 class AssemblyReports2RDF
-  ASSEMBLY_ROOT= 'ASSEMBLY_REPORTS'
-  REPORT_FILES = %w(assembly_summary_refseq.txt)
+  ASSEMBLY_ROOT = "ASSEMBLY_REPORTS"
+  REPORT_FILES = "assembly_summary_refseq.txt"
 
   attr_accessor :status
 
-  def initialize
+  def initialize(report_dir)
     @status = Hash.new{|h,k|h[k]=0}
     @reports =[] 
+    @assembly_dir = report_dir + "/#{ASSEMBLY_ROOT}"
+    @report_file = @assembly_dir + "/#{REPORT_FILES}"
+    if !File.exist?(@report_file)
+      puts "File not found. (#{@report_file})"
+      exit(1)
+    end
     parse_reports
     output_prefix
     output_project
   end 
 
   def parse_reports
-    REPORT_FILES.each do |input_file|
-        head = []
-        File.readlines("#{ASSEMBLY_ROOT}/#{input_file}").each_with_index do |line,i|
-            if i == 0
-               head =line.strip.gsub("\r","").gsub(/^#/,"").split("\t")
-            else
-               @reports << head.zip(line.strip.split("\t")).inject({}){|h,col| h[col[0]]=col[1];h}
-            end 
-        end 
-    end 
+    head = []
+    File.readlines(@report_file).each_with_index do |line,i|
+      if i == 0
+        head = line.strip.gsub("\r","").gsub(/^#/,"").strip.split("\t")
+      else
+        @reports << head.zip(line.strip.split("\t")).inject({}){|h,col| h[col[0]]=col[1];h}
+      end
+    end
   end
 
   def output_assembly_reports id
-      # /home/sw/tf/ASSEMBLY_REPORTS/All/
-      File.readlines("#{ASSEMBLY_ROOT}/All/#{id}.assembly.txt").each_with_index do |line,i|
+      File.readlines("#{@assembly_dir}/All/#{id}.assembly.txt").each_with_index do |line,i|
          next if line =~/^#/
          # Sequence-Name Sequence-Role   Assigned-Molecule       Assigned-Molecule-Location/Type GenBank-Accn    Relationship    RefSeq-Accn     Assembly-Unit
          sequence_name, sequence_role, assigned_molecule, assigned_molecule_location_type, genbank_accession, relationship, refseq_accession, assembly_unit =  line.strip.split("\t")
-         puts "\tasm:sequnece\t["
+         puts "\tasm:sequence\t["
          puts "\t\tasm:sequence_name\t#{quote(sequence_name)} ;"
          puts "\t\tasm:sequence_role\t#{quote(sequence_role)} ;"
          puts "\t\tasm:assigned_molecule\t#{quote(assigned_molecule)} ;"
@@ -98,9 +101,8 @@ class AssemblyReports2RDF
          project.each do |k,v|
              output_pv(k,v)
          end 
-         puts "\trdfs:seeAlso\t<http://www.ncbi.nlm.nih.gov/assembly/#{project[' assembly_id']}> ;"
-         #puts "\trdfs:seeAlso\tftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/All/#{project[' assembly_id']}.assembly.txt ;"
-         output_assembly_reports project[' assembly_id']
+         puts "\trdfs:seeAlso\t<http://www.ncbi.nlm.nih.gov/assembly/#{project['assembly_accession']}> ;"
+         output_assembly_reports project['assembly_accession']
          puts "]"
          puts "." 
          puts 
@@ -161,8 +163,8 @@ class AssemblyReports2RDF
       #p [k,v]
        case k
        ### assembly_reports
-       when ' assembly_id'
-           puts "\tasm:assembly_id\t#{quote(v)} ;" 
+       when 'assembly_accession'
+           puts "\tasm:assembly_accession\t#{quote(v)} ;" 
        #when 'bioproject'
        #when 'biosample'
        when 'wgs_master'
@@ -267,6 +269,8 @@ class AssemblyReports2RDF
   end
 end
 
-AssemblyReports2RDF.new
-#reports = AssemblyReports2RDF.new
-#warn reports.status
+if ARGV.size < 1
+  $stderr.puts "Usage: assembly_reports2ttl.rb reportDir"
+  exit(1)
+end
+AssemblyReports2RDF.new(ARGV[0])
