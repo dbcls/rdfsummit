@@ -20,7 +20,7 @@ case $1 in
         echo
         ;;
     isql)
-        ${isql}
+        ${isql} $2
         ;;
     port)
         echo ${port}
