@@ -632,7 +632,7 @@ END_OF_ONTOLOGY
         ## extensions for private-ftp taxdump
         if extensions.length == 3
             plastid_genetic_code_id, inherited_PGC_flag, formal_name_indicator = extensions 
-            puts triple(tax, ":geneticCodePt", ":GeneticCode#{plastid_genetic_code_id}")
+            puts triple(tax, ":geneticCodePt", ":GeneticCode#{plastid_genetic_code_id}") unless plastid_genetic_code_id.empty?
             puts triple(tax, ":formalNameCompliance", "#{formal_name_indicator == 1 ? 'true' : 'false'}")
         end
 
