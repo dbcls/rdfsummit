@@ -113,6 +113,11 @@ module TaxonomyOntology
   rdfs:label "Mitochondrial genetic code" ;
   rdfs:domain :Taxon ;
   rdfs:range :GeneticCode .
+:geneticCodePt
+  a owl:ObjectProperty, owl:FunctionalProperty ;
+  rdfs:label "Plastid genetic code" ;
+  rdfs:domain :Taxon ;
+  rdfs:range :GeneticCode .
 
 # properties (taxdump/names.dmp)
 
@@ -255,6 +260,12 @@ module TaxonomyOntology
   rdfs:label "unique name" ;
   rdfs:domain :Taxon ;
   rdfs:range xsd:string .
+
+:formalNameCompliance
+  a owl:DatatypeProperty ;
+  rdfs:label "formal name indicator" ;
+  rdfs:domain :Taxon ;
+  rdfs:range xsd: .
 
 # classes (taxdump/nodes.dmp)
 
@@ -603,7 +614,7 @@ END_OF_ONTOLOGY
 
     def parse
       File.open(@filename).each do |line|
-        tax_id, parent_tax_id, rank, embl_code, division_id, inherited_div_flag, genetic_code_id, inherited_gc_flag, mitochondrial_genetic_code_id, inherited_mgc_flag, genbank_hidden_flag, hidden_subtree_root_flag, comments, = *dmp_split(line)
+        tax_id, parent_tax_id, rank, embl_code, division_id, inherited_div_flag, genetic_code_id, inherited_gc_flag, mitochondrial_genetic_code_id, inherited_mgc_flag, genbank_hidden_flag, hidden_subtree_root_flag, comments, *extensions = *dmp_split(line)
         tax = "taxid:#{tax_id}"
 
         puts triple(tax, "a", ":Taxon")
@@ -618,6 +629,12 @@ END_OF_ONTOLOGY
         puts triple(tax, ":rank", ":#{RANK_CLASS[rank]}")
         puts triple(tax, ":geneticCode", ":GeneticCode#{genetic_code_id}")
         puts triple(tax, ":geneticCodeMt", ":GeneticCode#{mitochondrial_genetic_code_id}")
+        ## extensions for private-ftp taxdump
+        if extensions.length == 3
+            plastid_genetic_code_id, inherited_PGC_flag, formal_name_indicator = extensions 
+            puts triple(tax, ":geneticCodePt", ":GeneticCode#{plastid_genetic_code_id}")
+            puts triple(tax, ":formalNameCompliance", "#{formal_name_indicator == 1 ? 'true' : 'false'}")
+        end
 
         if @names[tax_id]
           @names[tax_id].each do |name|
