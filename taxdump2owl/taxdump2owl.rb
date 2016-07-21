@@ -364,6 +364,10 @@ module TaxonomyOntology
 :Varietas
   a :Rank ;
   rdfs:label "varietas" .
+:DummyTaxon
+  a owl:Class ;
+  rdfs:subClassOf :Taxon ;
+  rdfs:label "dummy taxon" .
 
 # classes (taxdump/gencode.dmp)
 
@@ -617,7 +621,7 @@ END_OF_ONTOLOGY
         tax_id, parent_tax_id, rank, embl_code, division_id, inherited_div_flag, genetic_code_id, inherited_gc_flag, mitochondrial_genetic_code_id, inherited_mgc_flag, genbank_hidden_flag, hidden_subtree_root_flag, comments, *extensions = *dmp_split(line)
         tax = "taxid:#{tax_id}"
 
-        puts triple(tax, "a", ":Taxon")
+        puts triple(tax, "a", ":#{tax_id == 1274375 ? 'DummyTaxon' : 'Taxon'}")
         puts triple(tax, "rdfs:subClassOf", "taxid:#{parent_tax_id}") if tax_id != parent_tax_id
         puts triple(tax, "dcterms:identifier", "#{tax_id}")
         puts triple(tax, "owl:sameAs", "taxddbj:#{tax_id}")
