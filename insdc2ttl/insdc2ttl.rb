@@ -577,8 +577,10 @@ class INSDC2RDF
     #puts triple(@entry_uri, 'insdc:source', @source_uri)
     puts triple(@source_uri, "obo:so_part_of", @sequence_uri)
 
-    source_link(hash["db_xref"])
-    hash.delete("db_xref")
+    if hash["db_xref"]
+      source_link(hash["db_xref"])
+      hash.delete("db_xref")
+    end
     source_qualifiers(hash)
   end
 
