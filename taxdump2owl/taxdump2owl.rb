@@ -462,6 +462,7 @@ END_OF_ONTOLOGY
     "genbank common name"   => "genbankCommonName",
     "genbank synonym"       => "genbankSynonym",
     "blast name"            => "blastName",
+    "unpublished name"      => "unpublishedName"
   }
 
   RANK_CLASS = {
