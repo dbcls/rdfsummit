@@ -580,6 +580,8 @@ class INSDC2RDF
     if hash["db_xref"]
       source_link(hash["db_xref"])
       hash.delete("db_xref")
+    else
+      $stderr.puts "Warning: #{@sequence_id} doesn't contain db_xref in the source feature."
     end
     source_qualifiers(hash)
   end
