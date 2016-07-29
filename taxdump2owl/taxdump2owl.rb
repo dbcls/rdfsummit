@@ -253,7 +253,12 @@ module TaxonomyOntology
   rdfs:label "blast name" ;
   rdfs:domain :Taxon ;
   rdfs:range xsd:string .
-
+:unpublishedName
+  a owl:DatatypeProperty ;
+  rdfs:subPropertyOf :name ;
+  rdfs:label "unpublished name" ;
+  rdfs:domain :Taxon ;
+  rdfs:range xsd:string .  
 :uniqueName
   a owl:DatatypeProperty ;
   rdfs:subPropertyOf :name ;
