@@ -161,7 +161,8 @@ class AssemblyReports2RDF
     File.open(out_file,"w") do |f|
     output_prefix f
 
-    @reports.first(5).each do |project|
+    #@reports.first(5).each do |project|
+    @reports.each do |project|
          base_path = project['ftp_path'].sub('ftp://ftp.ncbi.nlm.nih.gov/', '')
          #basename = File.basename(base_path)
          subject = "http://ddbj.nig.ac.jp/#{base_path}"
