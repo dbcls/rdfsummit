@@ -31,7 +31,6 @@ require "fileutils"
 require 'pp'
 
 class AssemblyReports2RDF
-  ASSEMBLY_ROOT = "ASSEMBLY_REPORTS"
 
   attr_accessor :status
 
@@ -60,15 +59,15 @@ class AssemblyReports2RDF
          { name: 'INSDC',
            path: 'genomes/ASSEMBLY_REPORTS/assembly_summary_genbank.txt',
            outpath: 'genomes/ASSEMBLY_REPORTS/assembly_summary_genbank.ttl',
-           source: 'genomes/assembly_summary_genbank.txt',
-           idtype: 'http://identifiers.org/insdc'
+           source: 'assembly_summary_genbank.txt',
+           idtype: 'insdc'
          },
       :refseq =>
          { name: 'RefSeq',
            path: 'genomes/ASSEMBLY_REPORTS/assembly_summary_refseq.txt',
            outpath: 'genomes/ASSEMBLY_REPORTS/assembly_summary_refseq.ttl',
            source: 'assembly_summary_refseq.txt',
-           idtype: 'http://identifiers.org/insdc'
+           idtype: 'refseq'
          }
      }
   end
@@ -99,9 +98,9 @@ class AssemblyReports2RDF
       puts out_file
 
       File.open(out_file,"w") do |f|
-      f.puts output_prefix_common
-      f.puts
-      f.puts "<#{subject}>"
+        f.puts output_prefix_common
+        f.puts
+        f.puts "<#{subject}>"
         File.readlines(stats_filepath).each_with_index do |line,i|
           next if line =~/^#/
           unit_name, molecule_name, molecule_type_loc, sequence_type, statistic, value = line.strip.split("\t")
@@ -134,7 +133,7 @@ class AssemblyReports2RDF
   end
 
   def quote(str)
-      return str.to_s.gsub('\\', '\\\\').gsub("\t", '\\t').gsub("\n", '\\n').gsub("\r", '\\r').gsub('"', '\\"').inspect
+      return str.to_s.gsub(/(\\|\t|\n|\r|")/, '\\' => '\\\\', "\t" => '\\t', "\n" => '\\n', "\r" => '\\r', '"' => '\\"').inspect
   end
 
   def output_prefix_common
@@ -159,36 +158,36 @@ class AssemblyReports2RDF
     puts out_file
 
     File.open(out_file,"w") do |f|
-    output_prefix f
+      output_prefix f
 
-    #@reports.first(5).each do |project|
-    @reports.each do |project|
-         base_path = project['ftp_path'].sub('ftp://ftp.ncbi.nlm.nih.gov/', '')
-         #basename = File.basename(base_path)
-         subject = "http://ddbj.nig.ac.jp/#{base_path}"
-         @sequences =[]
-         acc = project["BioProject Accession"] || project["bioproject"]
-         @project_uri = "http://identifiers.org/bioproject/#{acc}"
-         f.puts "<#{subject}>"
-         f.puts "\trdf:type\tasm:Assembly_Database_Entry ;"
-         #puts "\tsio:SIO_000068\t<http://identifiers.org/#{@idtype}> ;" # sio:is-part-of
-         f.puts "\trdf:type\t<http://identifiers.org/#{@idtype}> ;" # sio:is-part-of
-         f.puts "\tasm:wasDerivedFrom \"#{@source}\" ;" # prov:wasDerivedFrom
-         # sio:SIO_000068  <http://identifiers.org/ncbigi>
-         project.each do |k,v|
-             output_pv(k,v,f)
-         end
-         #puts "\trdfs:seeAlso\t<http://www.ncbi.nlm.nih.gov/assembly/#{project[' assembly_accession']}> ;"
-         f.puts "\trdfs:seeAlso\tasm:#{project['assembly_accession']} ."
-         f.puts
-         #puts "\trdfs:seeAlso\tftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/All/#{project[' assembly_accession']}.assembly.txt ;"
-         
-         @paths.push(base_path)
-         #output_each_assembly base_path
+      #@reports.first(5).each do |project|
+      @reports.each do |project|
+        base_path = project['ftp_path'].sub('ftp://ftp.ncbi.nlm.nih.gov/', '')
+        #basename = File.basename(base_path)
+        subject = "http://ddbj.nig.ac.jp/#{base_path}"
+        @sequences =[]
+        acc = project["BioProject Accession"] || project["bioproject"]
+        @project_uri = "http://identifiers.org/bioproject/#{acc}"
+        f.puts "<#{subject}>"
+        f.puts "\trdf:type\tasm:Assembly_Database_Entry ;"
+        #puts "\tsio:SIO_000068\t<http://identifiers.org/#{@idtype}> ;" # sio:is-part-of
+        f.puts "\trdf:type\t<http://identifiers.org/#{@idtype}> ;" # sio:is-part-of
+        f.puts "\tasm:wasDerivedFrom \"#{@source}\" ;" # prov:wasDerivedFrom
+        # sio:SIO_000068  <http://identifiers.org/ncbigi>
+        project.each do |k,v|
+          output_pv(k,v,f)
+        end
+        #puts "\trdfs:seeAlso\t<http://www.ncbi.nlm.nih.gov/assembly/#{project[' assembly_accession']}> ;"
+        f.puts "\trdfs:seeAlso\tasm:#{project['assembly_accession']} ."
+        f.puts
+        #puts "\trdfs:seeAlso\tftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/All/#{project[' assembly_accession']}.assembly.txt ;"
 
-         #output_sequences # for genome_reports
-         @status[project["Status"]] += 1
-    end
+        @paths.push(base_path)
+        #output_each_assembly base_path
+
+        #output_sequences # for genome_reports
+        @status[project["Status"]] += 1
+      end
     end
   end
 
