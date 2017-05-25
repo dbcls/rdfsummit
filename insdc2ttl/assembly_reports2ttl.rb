@@ -74,7 +74,7 @@ class AssemblyReports2RDF
 
   def parse_summary file_path 
     head = []
-    File.readlines("#{file_path}").each_with_index do |line,i|
+    File.readlines("#{file_path}",:encoding =>'UTF-8').each_with_index do |line,i|
       if i == 0  # description row
       elsif i == 1
         head =line.strip.gsub("\r","").gsub(/^#/,"").strip.split("\t")
@@ -101,7 +101,7 @@ class AssemblyReports2RDF
         f.puts output_prefix_common
         f.puts
         f.puts "<#{subject}>"
-        File.readlines(stats_filepath).each_with_index do |line,i|
+        File.readlines(stats_filepath, :encoding =>'UTF-8').each_with_index do |line,i|
           next if line =~/^#/
           unit_name, molecule_name, molecule_type_loc, sequence_type, statistic, value = line.strip.split("\t")
           if unit_name == 'all' and molecule_name == 'all' and  molecule_type_loc == 'all' and sequence_type == 'all'
@@ -110,7 +110,7 @@ class AssemblyReports2RDF
           end
         end
 
-        File.readlines(report_filepath).each_with_index do |line,i|
+        File.readlines(report_filepath, :encoding =>'UTF-8').each_with_index do |line,i|
           next if line =~/^#/
           # Sequence-Name Sequence-Role   Assigned-Molecule       Assigned-Molecule-Location/Type GenBank-Accn    Relationship    RefSeq-Accn     Assembly-Unit
           sequence_name, sequence_role, assigned_molecule, assigned_molecule_location_type, genbank_accession, relationship, refseq_accession, assembly_unit =  line.strip.split("\t")
@@ -343,6 +343,8 @@ class AssemblyReports2RDF
           f.puts "\tasm:excluded_from_refseq\t#{quote(v)} ;"
        when 'Pubmed ID'
           f.puts "\tasm:pubmed_id\t#{quote(v)} ; #only prokaryotes"
+       when 'relation_to_type_material'
+          f.puts "\tasm:relation_to_type_material\t#{quote(v)} ;"
        else
            f.puts "     when '#{k}'"
            warn "undefied key: #{k}"
