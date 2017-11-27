@@ -51,8 +51,8 @@ module RDFSupport
     return [
       triple("@prefix", "rdf:", "<http://www.w3.org/1999/02/22-rdf-syntax-ns#>"),
       triple("@prefix", "rdfs:", "<http://www.w3.org/2000/01/rdf-schema#>"),
-      triple("@prefix", "dc:", "<http://purl.org/dc/elements/1.1/>"),
-      #triple("@prefix", "dcterms:", "<http://purl.org/dc/terms/>"),
+      #triple("@prefix", "dc:", "<http://purl.org/dc/elements/1.1/>"),
+      triple("@prefix", "dc:", "<http://purl.org/dc/terms/>"),
       triple("@prefix", "xsd:", "<http://www.w3.org/2001/XMLSchema#>"),
       triple("@prefix", "skos:", "<http://www.w3.org/2004/02/skos/core#>"),
       triple("@prefix", "sio:", "<http://semanticscience.org/resource/>"),
@@ -217,7 +217,11 @@ class INSDC2RDF
 
     if hash = @rs_id.fetch(db)
       uri = "<#{hash['prefix']}/#{id}>"
-      puts triple(subject, "rdfs:seeAlso", uri)
+      if db == 'PubMed'
+        puts triple(subject, "dc:references", uri)
+      else
+        puts triple(subject, "rdfs:seeAlso", uri)
+      end
       puts triple(uri, "rdfs:label", quote(id))
       puts triple(uri, "dc:identifier", quote(id))
       puts triple(uri, "rdf:type", "insdc:#{hash['class']}")
@@ -434,11 +438,12 @@ class INSDC2RDF
 
   def sequence_label(str)
     # Use "name:" key in the JSON representation
+    puts triple(@entry_uri, "rdfs:label", quote(str))
     puts triple(@entry_uri, "insdc:definition", quote(str))
-    puts triple(@entry_uri, "rdfs:comment", quote(str))
   end
 
   def sequence_version(str)
+    puts triple(@entry_uri, "dc:identifier", quote(str))
     puts triple(@entry_uri, "insdc:sequence_version", quote(str))
   end
 
@@ -533,7 +538,7 @@ class INSDC2RDF
     references.each do |ref|
       @reference_uri = new_reference_uri(count)
       puts triple(@entry_uri, 'insdc:reference', @reference_uri)
-      puts triple(@reference_uri, 'sio:SIO_000300', count) + "  # sio:has-value"
+      puts triple(@reference_uri, 'rdf:value', count)
       puts triple(@reference_uri, 'insdcref:title', quote(ref.title)) if ref.title
       ref.authors.each do |author|
         puts triple(@reference_uri, 'insdcref:author', quote(author)) if author
