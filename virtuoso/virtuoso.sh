@@ -69,7 +69,6 @@ case $1 in
         ;;
     watch)
         echo "SELECT \
-                ll_state, \
                 CASE ll_state \
                   WHEN 0 THEN 'Waiting' \
                   WHEN 1 THEN 'Loading' \
