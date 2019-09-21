@@ -64,8 +64,20 @@ case $1 in
           checkpoint;
         " | ${isql}
         ;;
+    addloader)
+        echo "rdf_loader_run();" | ${isql}
+        ;;
     watch)
-        echo 'select count(*) from DB.DBA.LOAD_LIST where ll_state = 0;' | ${isql}
+        echo "SELECT \
+                ll_state, \
+                CASE ll_state \
+                  WHEN 0 THEN 'Waiting' \
+                  WHEN 1 THEN 'Loading' \
+                  WHEN 2 THEN 'Done' \
+                  ELSE 'Unknown' \
+                END AS status, \
+                COUNT(*) FROM DB.DBA.LOAD_LIST \
+                GROUP BY ll_state;" | ${isql}
         ;;
     list)
         echo "SPARQL SELECT DISTINCT ?g WHERE { GRAPH ?g {?s ?p ?o} };" | ${isql}
@@ -106,27 +118,31 @@ case $1 in
         echo "  Edit a config file of the server"
         echo "    $0 edit"
         echo
-        echo "  Loading RDF files"
-        echo "    $0 loadrdf graph_uri file.rdf"
-        echo "    $0 loadttl graph_uri file.ttl"
-        echo "    $0 loaddir graph_uri dir pattern"
+        echo "  Load RDF files"
+        echo "    $0 loadrdf 'graph_uri' file.rdf"
+        echo "    $0 loadttl 'graph_uri' file.ttl"
+        echo "    $0 loaddir 'graph_uri' dir pattern"
         echo "  Count remaining files to be loaded"
         echo "    $0 watch"
-        echo "  Peek a graph"
-        echo "    $0 head graph_uri"
-        echo "  Drop a graph"
-        echo "    $0 drop graph_uri"
+        echo "  Add extra loading process"
+        echo "    $0 addloader"
+        echo
         echo "  List graphs"
         echo "    $0 list"
+        echo "  Peek a graph"
+        echo "    $0 head 'graph_uri'"
+        echo "  Drop a graph"
+        echo "    $0 drop 'graph_uri'"
         echo
         echo "  Delete entire data (except for a config file)"
         echo "    $0 clear"
         exit 2
-	;;
+        ;;
     *)
-	echo "Usage:"
+        echo "Usage:"
         echo "$0 help"
         echo "$0 {start|stop|status|isql|port|path|dir|log|edit|clear}"
-        echo "$0 {loadrdf|loadttl|loaddir|watch|list|head|drop} [graph_uri [file|dir pattern]]"
+        echo "$0 {loadrdf|loadttl|loaddir|watch|addloader [graph_uri [file|dir pattern]]"
+        echo "$0 {list|head|drop} [graph_uri]"
         exit 2
 esac
