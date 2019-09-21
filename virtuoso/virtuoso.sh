@@ -65,7 +65,7 @@ case $1 in
         " | ${isql}
         ;;
     addloader)
-        echo "rdf_loader_run();" | ${isql}
+        echo "rdf_loader_run();" | ${isql} &
         ;;
     watch)
         echo "SELECT \
