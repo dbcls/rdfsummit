@@ -105,7 +105,7 @@ case $1 in
             | ${isql} | perl -ne 's/  +/\t/g; print if /^(SQL> ll|http)/#'
         ;;
     list)
-        echo "SPARQL SELECT ?g WHERE { GRAPH ?g {?s ?p ?o} } GROUP BY ?g;" | ${isql}
+        echo "SPARQL SELECT ?g WHERE { GRAPH ?g {[] [] []} } GROUP BY ?g ORDER BY ?g;" | ${isql}
         ;;
     head)
         echo "SPARQL SELECT DISTINCT * WHERE { GRAPH <$2> {?s ?p ?o} } LIMIT 10;" | ${isql}
