@@ -124,6 +124,9 @@ case $1 in
           echo "Aborted."
         fi
         ;;
+    query)
+        echo "SPARQL $2 ;" | ${isql}
+        ;;
     help)
         echo "Usage:"
         echo "  Show this help"
@@ -172,6 +175,10 @@ case $1 in
         echo
         echo "  Delete entire data (except for a config file)"
         echo "    $0 clear"
+        echo
+        echo "  Execute a SPARQL query via the isql command"
+        echo "    $0 query 'select * where {?your ?sparql ?query.} limit 100'"
+        echo
         exit 2
         ;;
     *)
@@ -182,6 +189,7 @@ case $1 in
         echo "$0 {loaddir} 'http://example.org/graph_uri' /path/to/directory '*.(ttl|rdf|owl)'"
         echo "$0 {addloader|watch|watch_wait|watch_load|watch_done|watch_error}"
         echo "$0 {list|head|drop} [graph_uri]"
+        echo "$0 query 'select * where {?your ?sparql ?query.} limit 100'"
         exit 2
 esac
 
