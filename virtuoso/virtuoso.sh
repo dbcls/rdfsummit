@@ -7,9 +7,19 @@ pass=dba
 
 isql="${prefix}/bin/isql ${port} ${user} ${pass}"
 
+## To use the Virtuoso OS X binary package, link the application directory to ${prefix} and change ${dbdir} and ${dbfile}.
+## % ln -s /Applications/Virtuoso\ Open\ Source\ Edition\ v7.2.app/Contents/virtuoso-opensource /opt/virtuoso
+
+#dbdir="${prefix}/database"
+#dbfile="database"
+
+dbdir="${prefix}/var/lib/virtuoso/db"
+dbfile="virtuoso"
+
+
 case $1 in
     start)
-        (cd ${prefix}/var/lib/virtuoso/db; ${prefix}/bin/virtuoso-t)
+        (cd ${dbdir}; ${prefix}/bin/virtuoso-t)
         ;;
     stop)
         echo "shutdown;" | ${isql}
@@ -26,23 +36,23 @@ case $1 in
         echo ${port}
         ;;
     path)
-        echo ${prefix}/var/lib/virtuoso/db/
+        echo ${dbdir}
         ;;
     dir)
-        ls -l ${prefix}/var/lib/virtuoso/db/
+        ls -l ${dbdir}
         ;;
     log)
-        tail -f ${prefix}/var/lib/virtuoso/db/virtuoso.log
+        tail -f ${dbdir}/${dbfile}.log
         ;;
     edit)
-        ${EDITOR:-vi} ${prefix}/var/lib/virtuoso/db/virtuoso.ini
+        ${EDITOR:-vi} ${dbdir}/virtuoso.ini
         ;;
     clear)
         read -p "Deleate all data. Continue? (Yes/No): " answer
         if [ "${answer:-No}" = "Yes" ]; then
-          mv ${prefix}/var/lib/virtuoso/db/virtuoso.ini ${prefix}/virtuoso.ini
-          rm -f ${prefix}/var/lib/virtuoso/db/*
-          mv ${prefix}/virtuoso.ini ${prefix}/var/lib/virtuoso/db/virtuoso.ini
+          mv ${dbdir}/virtuoso.ini ${prefix}/virtuoso.ini
+          rm -f ${dbdir}/*
+          mv ${prefix}/virtuoso.ini ${dbdir}/virtuoso.ini
         else
           echo "Aborted."
         fi
