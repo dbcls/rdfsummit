@@ -23,27 +23,24 @@ dbfile="virtuoso"
 # Windows
 #   * Virtuoso_OpenSource_Server_7.20.x64.exe
 
-# To use the Virtuoso Linux binary package, set the installed application directory to ${prefix} then change ${dbdir} and ${dbfile}.
-#   % sudo mv virtuoso-opensource /opt/virtuoso
+# To use the Virtuoso Linux binary package, set the installed application directory to ${prefix}.
 
 #prefix=/opt/virtuoso-opensource
 #dbdir="${prefix}/database"
 #dbfile="virtuoso"
 
-# To use the Virtuoso OS X binary package, set the installed application directory to ${prefix} then change ${dbdir} and ${dbfile}.
-#   % sudo ln -s /Applications/Virtuoso\ Open\ Source\ Edition\ v7.2.app/Contents/virtuoso-opensource /opt/virtuoso
+# To use the Virtuoso OS X binary package, set the installed application directory to ${prefix}.
 
 #prefix="/Applications/Virtuoso Open Source Edition v7.2.app/Contents/virtuoso-opensource"
 #dbdir="${prefix}/database"
 #dbfile="database"
 
-# To use the Virtuoso Windows binary package, set the installed application directory to ${prefix} then change ${dbdir} and ${dbfile}.
-#   % sudo ln -s '/mnt/c/Program Files/OpenLink Software/Virtuoso OpenSource 7.20/' /opt/virtuoso
-# Unfortunately, it seems that linking from /mnt/c (Windows volume) to /opt (Ubuntsu volume) makes exe files unexecutable, thus it would be better to point the installed directory.
+# To use the Virtuoso Windows binary package, set the installed application directory to ${prefix} and enable ${ext}.
 
 #prefix="/mnt/c/Program Files/OpenLink Software/Virtuoso OpenSource 7.20/"
 #dbdir="${prefix}/database"
 #dbfile="virtuoso"
+#ext=".exe"
 
 ### End of parameters
 
