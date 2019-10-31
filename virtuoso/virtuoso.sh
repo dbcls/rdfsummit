@@ -122,9 +122,10 @@ case $1 in
               WHEN 2 THEN 'Done' \
               ELSE 'Unknown' \
             END AS status, \
-            COUNT(*) \
+            COUNT(*) AS files \
           FROM DB.DBA.LOAD_LIST \
-          GROUP BY ll_state;
+          GROUP BY ll_state \
+          ORDER BY status;
         " | "${isql}" ${opts}
         ;;
     watch_wait)
