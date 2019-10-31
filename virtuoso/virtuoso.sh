@@ -78,7 +78,7 @@ case $1 in
     edit)
         ${EDITOR:-vi} "${dbdir}/virtuoso.ini"
         ;;
-    clear)
+    delete)
         read -p "Deleate all data. Continue? (Yes/No): " answer
         if [ "${answer:-No}" = "Yes" ]; then
           mv "${dbdir}/virtuoso.ini" "${prefix}/virtuoso.ini"
@@ -226,7 +226,7 @@ case $1 in
         echo "    $0 drop 'http://example.org/graph_uri'"
         echo
         echo "  Delete entire data (except for a config file)"
-        echo "    $0 clear"
+        echo "    $0 delete"
         echo
         echo "  Execute a SPARQL query via the isql command"
         echo "    $0 query 'select * where {?your ?sparql ?query.} limit 100'"
@@ -236,7 +236,7 @@ case $1 in
     *)
         echo "Usage:"
         echo "$0 help"
-        echo "$0 {start|stop|status|isql|port|path|dir|log|edit|clear}"
+        echo "$0 {start|stop|status|isql|port|path|dir|log|edit|delete}"
         echo "$0 {loadrdf|loadttl} 'http://example.org/graph_uri' /path/to/file"
         echo "$0 {loaddir} 'http://example.org/graph_uri' /path/to/directory '*.(ttl|rdf|owl)'"
         echo "$0 {addloader|watch|watch_wait|watch_load|watch_done|watch_error}"
