@@ -88,6 +88,12 @@ case $1 in
           echo "Aborted."
         fi
         ;;
+    cors)
+       echo "DB.DBA.VHOST_DEFINE (lpath=>'/sparql_1', ppath=>'/!sparql/', opts=>vector('cors','*')); \
+         update http_path set HP_OPTIONS = (select HP_OPTIONS from http_path where HP_LPATH='/sparql_1') where HP_LPATH='/sparql'; \
+         DB.DBA.VHOST_REMOVE (lpath=>'/sparql_1'); \
+       " | "${isql}" ${opts}
+       ;;
     loadrdf)
         echo "
           log_enable(2,1);
