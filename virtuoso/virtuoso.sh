@@ -2,9 +2,9 @@
 
 ### Parameters to be redefined
 
-port=1111
-user=dba
-pass=dba
+port=${VIRTUOSO_PORT:-1111}
+user=${VIRTUOSO_USER:-dba}
+pass=${VIRTUOSO_PASS:-dba}
 
 ## Default for the source code distribution
 
@@ -78,6 +78,18 @@ case $1 in
     edit)
         ${EDITOR:-vi} "${dbdir}/virtuoso.ini"
         ;;
+    enable_cors)
+        read -p "Enable CORS to all domains (recommended for all SPARQL endpoints). Continue? (Yes/No): " answer
+        if [ "${answer:-No}" = "Yes" ]; then
+          echo "
+            DB.DBA.VHOST_DEFINE (lpath=>'/sparql_1', ppath=>'/!sparql/', opts=>vector('cors','*'));
+            UPDATE http_path SET HP_OPTIONS = (SELECT HP_OPTIONS FROM http_path WHERE HP_LPATH='/sparql_1') WHERE HP_LPATH='/sparql';
+            DB.DBA.VHOST_REMOVE (lpath=>'/sparql_1');
+          " | "${isql}" ${opts}
+        else
+          echo "Aborted."
+        fi
+        ;;
     delete)
         read -p "Deleate all data. Continue? (Yes/No): " answer
         if [ "${answer:-No}" = "Yes" ]; then
@@ -88,12 +100,6 @@ case $1 in
           echo "Aborted."
         fi
         ;;
-    cors)
-       echo "DB.DBA.VHOST_DEFINE (lpath=>'/sparql_1', ppath=>'/!sparql/', opts=>vector('cors','*')); \
-         update http_path set HP_OPTIONS = (select HP_OPTIONS from http_path where HP_LPATH='/sparql_1') where HP_LPATH='/sparql'; \
-         DB.DBA.VHOST_REMOVE (lpath=>'/sparql_1'); \
-       " | "${isql}" ${opts}
-       ;;
     loadrdf)
         echo "
           log_enable(2,1);
@@ -207,6 +213,10 @@ case $1 in
         echo "    $0 log"
         echo "  Edit a config file of the server"
         echo "    $0 edit"
+        echo "  Enable 'Access-Control-Allow-Origin: *' to allow Cross-Origin Resource Sharing (CORS) for all domains"
+        echo "    $0 enable_cors"
+        echo "  Delete entire data (except for a config file)"
+        echo "    $0 delete"
         echo
         echo "  Load RDF files"
         echo "    $0 loadrdf 'http://example.org/graph_uri' /path/to/file.rdf"
@@ -231,9 +241,6 @@ case $1 in
         echo "  Drop a graph"
         echo "    $0 drop 'http://example.org/graph_uri'"
         echo
-        echo "  Delete entire data (except for a config file)"
-        echo "    $0 delete"
-        echo
         echo "  Execute a SPARQL query via the isql command"
         echo "    $0 query 'select * where {?your ?sparql ?query.} limit 100'"
         echo
@@ -242,7 +249,7 @@ case $1 in
     *)
         echo "Usage:"
         echo "$0 help"
-        echo "$0 {start|stop|status|isql|port|path|dir|log|edit|delete}"
+        echo "$0 {start|stop|status|isql|port|path|dir|log|edit|enable_cors|delete}"
         echo "$0 {loadrdf|loadttl} 'http://example.org/graph_uri' /path/to/file"
         echo "$0 {loaddir} 'http://example.org/graph_uri' /path/to/directory '*.(ttl|rdf|owl)'"
         echo "$0 {addloader|watch|watch_wait|watch_load|watch_done|watch_error}"
