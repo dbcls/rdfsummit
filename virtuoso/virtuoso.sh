@@ -1,20 +1,22 @@
 #!/bin/sh
 
-### Parameters to be redefined
+### Parameters
 
 port=${VIRTUOSO_PORT:-1111}
 user=${VIRTUOSO_USER:-dba}
 pass=${VIRTUOSO_PASS:-dba}
 
-## Default for the source code distribution
+## Options for the source code distribution
 
-prefix=/opt/virtuoso
-dbdir="${prefix}/var/lib/virtuoso/db"
-dbfile="virtuoso"
+# To use the Virtuoso source code distribution, change the following default environmental variables when needed.
+#
+# * VIRTUOSO_PREFIX="/opt/virtuoso"
+# * VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/var/lib/virtuoso/db"
+# * VIRTUOSO_DBFILE="virtuoso"
 
-## Parameters for binary packages
+## Options for binary packages
 
-# Download from (as of release v7.2.5.1)
+# Downloaded from (as of release v7.2.5.1)
 #   * https://github.com/openlink/virtuoso-opensource/releases
 # Linux
 #   * virtuoso-opensource.x86_64-generic_glibc25-linux-gnu.tar.gz
@@ -22,35 +24,37 @@ dbfile="virtuoso"
 #   * virtuoso-opensource-7.2.5-macosx-app.dmg
 # Windows
 #   * Virtuoso_OpenSource_Server_7.20.x64.exe
+#
+# To use the Virtuoso Linux binary package, set the following environmental variables.
+#
+# * VIRTUOSO_PREFIX="/opt/virtuoso-opensource"
+# * VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/database"
+# * VIRTUOSO_DBFILE="virtuoso"
+#
+# To use the Virtuoso OS X binary package, set the following environmental variables.
+#
+# * VIRTUOSO_PREFIX="/Applications/Virtuoso Open Source Edition v7.2.app/Contents/virtuoso-opensource"
+# * VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/database"
+# * VIRTUOSO_DBFILE="database"
+#
+# To use the Virtuoso Windows binary package, set the following environmental variables.
+#
+# * VIRTUOSO_PREFIX="/mnt/c/Program Files/OpenLink Software/Virtuoso OpenSource 7.20/"
+# * VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/database"
+# * VIRTUOSO_DBFILE="virtuoso"
+# * VIRTUOSO_SUFFIX=".exe"
 
-# To use the Virtuoso Linux binary package, set the installed application directory to ${prefix}.
+prefix=${VIRTUOSO_PREFIX:-/opt/virtuoso}
+dbdir=${VIRTUOSO_DBDIR:-${prefix}/var/lib/virtuoso/db}
+dbfile=${VIRTUOSO_DBFILE:-virtuoso}
+suffix=${VIRTUOSO_SUFFIX}
 
-#prefix=/opt/virtuoso-opensource
-#dbdir="${prefix}/database"
-#dbfile="virtuoso"
-
-# To use the Virtuoso OS X binary package, set the installed application directory to ${prefix}.
-
-#prefix="/Applications/Virtuoso Open Source Edition v7.2.app/Contents/virtuoso-opensource"
-#dbdir="${prefix}/database"
-#dbfile="database"
-
-# To use the Virtuoso Windows binary package, set the installed application directory to ${prefix} and enable ${ext}.
-
-#prefix="/mnt/c/Program Files/OpenLink Software/Virtuoso OpenSource 7.20/"
-#dbdir="${prefix}/database"
-#dbfile="virtuoso"
-#ext=".exe"
-
-### End of parameters
-
-
-isql="${prefix}/bin/isql${ext}"
+isql="${prefix}/bin/isql${suffix}"
 opts="${port} ${user} ${pass}"
 
 case $1 in
     start)
-        (cd "${dbdir}"; "${prefix}/bin/virtuoso-t${ext}")
+        (cd "${dbdir}"; "${prefix}/bin/virtuoso-t${suffix}")
         ;;
     stop)
         echo "shutdown;" | "${isql}" ${opts}
@@ -77,6 +81,22 @@ case $1 in
         ;;
     edit)
         ${EDITOR:-vi} "${dbdir}/virtuoso.ini"
+        ;;
+    password)
+        echo "Changing password for dba."
+        read -s -p "New password: " newpass
+        echo
+        read -s -p "Retype New Password: " newpass2
+        echo
+        if [ ${newpass:?"Required non empty password"} -a ${newpass} = ${newpass2} ]; then
+          echo "set password ${pass} ${newpass};" | "${isql}" ${opts}
+          echo
+          echo "Don't forget to update:"
+          echo "  * the pass variable in this shell script ($0)"
+          echo "  * and/or the VIRTUOSO_PASS environmental variable"
+        else
+          echo "Aborted."
+        fi
         ;;
     enable_cors)
         read -p "Enable CORS to all domains (recommended for all SPARQL endpoints). Continue? (Yes/No): " answer
