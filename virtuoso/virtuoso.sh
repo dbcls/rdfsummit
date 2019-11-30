@@ -233,6 +233,8 @@ case $1 in
         echo "    $0 log"
         echo "  Edit a config file of the server"
         echo "    $0 edit"
+        echo "  Change password for the 'dba' user"
+        echo "    $0 password"
         echo "  Enable 'Access-Control-Allow-Origin: *' to allow Cross-Origin Resource Sharing (CORS) for all domains"
         echo "    $0 enable_cors"
         echo "  Delete entire data (except for a config file)"
@@ -269,7 +271,7 @@ case $1 in
     *)
         echo "Usage:"
         echo "$0 help"
-        echo "$0 {start|stop|status|isql|port|path|dir|log|edit|enable_cors|delete}"
+        echo "$0 {start|stop|status|isql|port|path|dir|log|edit|password|enable_cors|delete}"
         echo "$0 {loadrdf|loadttl} 'http://example.org/graph_uri' /path/to/file"
         echo "$0 {loaddir} 'http://example.org/graph_uri' /path/to/directory '*.(ttl|rdf|owl)'"
         echo "$0 {addloader|watch|watch_wait|watch_load|watch_done|watch_error}"
