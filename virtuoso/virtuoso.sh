@@ -110,6 +110,24 @@ case $1 in
           echo "Aborted."
         fi
         ;;
+    enable_service)
+        read -p "Enable SERVICE query to all users. Continue? (Yes/No): " answer
+        if [ "${answer:-No}" = "Yes" ]; then
+	  # These two lines are not necessary to enable SERVICE query but to allow virtuoso using Service Description
+          # * http://vos.openlinksw.com/owiki/wiki/VOS/VirtTipsAndTricksDiscoverSPARQFedCapabilitiesSPARQL
+          # * http://lists.w3.org/Archives/Public/public-rww/2015Feb/0010.html
+	  echo 'GRANT SPARQL_LOAD_SERVICE_DATA TO "SPARQL";' | "${isql}" ${opts}
+	  echo 'GRANT SPARQL_SPONGE TO "SPARQL";' | "${isql}" ${opts}
+	  # Virtuoso 42000 Error SQ070:SECURITY: Must have select privileges on view DB.DBA.SPARQL_SINV_2
+          echo 'GRANT SELECT ON "DB.DBA.SPARQL_SINV_2" TO "SPARQL";' | "${isql}" ${opts}
+	  # Virtuoso 42000 Error SR186:SECURITY: No permission to execute procedure DB.DBA.SPARQL_SINV_IMP with user ID 107, group ID 107
+          echo 'GRANT EXECUTE ON "DB.DBA.SPARQL_SINV_IMP" TO "SPARQL";' | "${isql}" ${opts}
+	  # Virtuoso 37000 Error SP031: SPARQL compiler: SERVICE <http://example.org/sparql> at line ?? does not support SPARQL-BI extensions (like expressions in result set) so SPARQL query can not be composed
+          # * This can be happen, e.g. by using BIND in the SERVICE query. (solution awaited)
+        else
+          echo "Aborted."
+        fi
+        ;;
     delete)
         read -p "Deleate all data. Continue? (Yes/No): " answer
         if [ "${answer:-No}" = "Yes" ]; then
@@ -237,6 +255,8 @@ case $1 in
         echo "    $0 password"
         echo "  Enable 'Access-Control-Allow-Origin: *' to allow Cross-Origin Resource Sharing (CORS) for all domains"
         echo "    $0 enable_cors"
+        echo "  Enable SERVICE query to all users"
+        echo "    $0 enable_service"
         echo "  Delete entire data (except for a config file)"
         echo "    $0 delete"
         echo
@@ -271,7 +291,7 @@ case $1 in
     *)
         echo "Usage:"
         echo "$0 help"
-        echo "$0 {start|stop|status|isql|port|path|dir|log|edit|password|enable_cors|delete}"
+        echo "$0 {start|stop|status|isql|port|path|dir|log|edit|password|enable_cors|enable_service|delete}"
         echo "$0 {loadrdf|loadttl} 'http://example.org/graph_uri' /path/to/file"
         echo "$0 {loaddir} 'http://example.org/graph_uri' /path/to/directory '*.(ttl|rdf|owl)'"
         echo "$0 {addloader|watch|watch_wait|watch_load|watch_done|watch_error}"
