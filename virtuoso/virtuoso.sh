@@ -6,6 +6,11 @@ port=${VIRTUOSO_PORT:-1111}
 user=${VIRTUOSO_USER:-dba}
 pass=${VIRTUOSO_PASS:-dba}
 
+prefix=${VIRTUOSO_PREFIX:-/opt/virtuoso}
+dbdir=${VIRTUOSO_DBDIR:-${prefix}/var/lib/virtuoso/db}
+dbfile=${VIRTUOSO_DBFILE:-virtuoso}
+suffix=${VIRTUOSO_SUFFIX}
+
 ## Options for the source code distribution
 
 # To use the Virtuoso source code distribution, change the following default environmental variables when needed.
@@ -43,11 +48,6 @@ pass=${VIRTUOSO_PASS:-dba}
 # * VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/database"
 # * VIRTUOSO_DBFILE="virtuoso"
 # * VIRTUOSO_SUFFIX=".exe"
-
-prefix=${VIRTUOSO_PREFIX:-/opt/virtuoso}
-dbdir=${VIRTUOSO_DBDIR:-${prefix}/var/lib/virtuoso/db}
-dbfile=${VIRTUOSO_DBFILE:-virtuoso}
-suffix=${VIRTUOSO_SUFFIX}
 
 isql="${prefix}/bin/isql${suffix}"
 opts="${port} ${user} ${pass}"
