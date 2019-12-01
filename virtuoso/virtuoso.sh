@@ -1,6 +1,90 @@
 #!/bin/sh
+#
+# NAME
+#       virtuoso.sh - utilities for the virtuoso triple store
+#
+# USAGE
+#       virtuoso.sh help
+#
+# CONFIGURATION
+#
+#    Default parameters, environmental variables and config file
+#
+#       To change the default values, export the following environmental
+#       variables or create an user config file (default: ~/.virtuosorc)
+#       and override the values.
+#
+#         VIRTUOSO_PORT="1111"
+#         VIRTUOSO_USER="dba"
+#         VIRTUOSO_PASS="dba"
+#         VIRTUOSO_PREFIX="/opt/virtuoso"
+#         VIRTUOSO_DBDIR="/opt/virtuoso/var/lib/virtuoso/db"
+#         VIRTUOSO_DBFILE="virtuoso"
+#         VIRTUOSO_SUFFIX=""
+#
+#       To change the path and/or name of an user config file, set the
+#       following environmental variable.
+#
+#         VIRTUOSO_CONF="/path/to/your/.virtuosorc"
+#
+#    Options for the source code distribution
+#
+#       To use the Virtuoso source code distribution, check the following
+#       default values and override them if needed.
+#
+#         VIRTUOSO_PREFIX="/opt/virtuoso"
+#         VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/var/lib/virtuoso/db"
+#         VIRTUOSO_DBFILE="virtuoso"
+#
+#    Options for binary packages
+#
+#       Binary packages can be downloaded downloaded from
+#
+#         https://github.com/openlink/virtuoso-opensource/releases
+#
+#       and following options are available (as of release v7.2.5.1).
+#
+#         Linux:
+#           virtuoso-opensource.x86_64-generic_glibc25-linux-gnu.tar.gz
+#         Mac OS X (macOS):
+#           virtuoso-opensource-7.2.5-macosx-app.dmg
+#         Windows:
+#           Virtuoso_OpenSource_Server_7.20.x64.exe
+#
+#       To use the Virtuoso Linux binary package, set the following variables.
+#
+#         VIRTUOSO_PREFIX="/opt/virtuoso-opensource"
+#         VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/database"
+#         VIRTUOSO_DBFILE="virtuoso"
+#
+#       To use the Virtuoso OS X binary package, set the following variables.
+#
+#         VIRTUOSO_PREFIX="/Applications/Virtuoso Open Source Edition v7.2.app/Contents/virtuoso-opensource"
+#         VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/database"
+#         VIRTUOSO_DBFILE="database"
+#
+#       To use the Virtuoso Windows binary package, set the following variables.
+#
+#         VIRTUOSO_PREFIX="/mnt/c/Program Files/OpenLink Software/Virtuoso OpenSource 7.20/"
+#         VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/database"
+#         VIRTUOSO_DBFILE="virtuoso"
+#         VIRTUOSO_SUFFIX=".exe"
+#
+# AVAILABILITY
+#
+#       Latest version of this script is available at the following GitHub
+#       repository under the virtuoso sub-directory.
+#
+#         https://github.com/dbcls/rdfsummit/
+#
+#       If you find a bug, please report it via GitHub issues.
+#
 
-### Parameters
+conf=${VIRTUOSO_CONF:-${HOME}/.virtuosorc}
+
+if [ -f "${conf}" ]; then
+  . "${conf}"
+fi
 
 port=${VIRTUOSO_PORT:-1111}
 user=${VIRTUOSO_USER:-dba}
@@ -11,43 +95,6 @@ dbdir=${VIRTUOSO_DBDIR:-${prefix}/var/lib/virtuoso/db}
 dbfile=${VIRTUOSO_DBFILE:-virtuoso}
 suffix=${VIRTUOSO_SUFFIX}
 
-## Options for the source code distribution
-
-# To use the Virtuoso source code distribution, change the following default environmental variables when needed.
-#
-# * VIRTUOSO_PREFIX="/opt/virtuoso"
-# * VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/var/lib/virtuoso/db"
-# * VIRTUOSO_DBFILE="virtuoso"
-
-## Options for binary packages
-
-# Downloaded from (as of release v7.2.5.1)
-#   * https://github.com/openlink/virtuoso-opensource/releases
-# Linux
-#   * virtuoso-opensource.x86_64-generic_glibc25-linux-gnu.tar.gz
-# Mac OS X (macOS)
-#   * virtuoso-opensource-7.2.5-macosx-app.dmg
-# Windows
-#   * Virtuoso_OpenSource_Server_7.20.x64.exe
-#
-# To use the Virtuoso Linux binary package, set the following environmental variables.
-#
-# * VIRTUOSO_PREFIX="/opt/virtuoso-opensource"
-# * VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/database"
-# * VIRTUOSO_DBFILE="virtuoso"
-#
-# To use the Virtuoso OS X binary package, set the following environmental variables.
-#
-# * VIRTUOSO_PREFIX="/Applications/Virtuoso Open Source Edition v7.2.app/Contents/virtuoso-opensource"
-# * VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/database"
-# * VIRTUOSO_DBFILE="database"
-#
-# To use the Virtuoso Windows binary package, set the following environmental variables.
-#
-# * VIRTUOSO_PREFIX="/mnt/c/Program Files/OpenLink Software/Virtuoso OpenSource 7.20/"
-# * VIRTUOSO_DBDIR="${VIRTUOSO_PREFIX}/database"
-# * VIRTUOSO_DBFILE="virtuoso"
-# * VIRTUOSO_SUFFIX=".exe"
 
 isql="${prefix}/bin/isql${suffix}"
 opts="${port} ${user} ${pass}"
@@ -113,16 +160,16 @@ case $1 in
     enable_service)
         read -p "Enable SERVICE query to all users. Continue? (Yes/No): " answer
         if [ "${answer:-No}" = "Yes" ]; then
-	  # These two lines are not necessary to enable SERVICE query but to allow virtuoso using Service Description
+          # These two lines are not necessary to enable SERVICE query but to allow virtuoso using Service Description
           # * http://vos.openlinksw.com/owiki/wiki/VOS/VirtTipsAndTricksDiscoverSPARQFedCapabilitiesSPARQL
           # * http://lists.w3.org/Archives/Public/public-rww/2015Feb/0010.html
-	  echo 'GRANT SPARQL_LOAD_SERVICE_DATA TO "SPARQL";' | "${isql}" ${opts}
-	  echo 'GRANT SPARQL_SPONGE TO "SPARQL";' | "${isql}" ${opts}
-	  # Virtuoso 42000 Error SQ070:SECURITY: Must have select privileges on view DB.DBA.SPARQL_SINV_2
+          echo 'GRANT SPARQL_LOAD_SERVICE_DATA TO "SPARQL";' | "${isql}" ${opts}
+          echo 'GRANT SPARQL_SPONGE TO "SPARQL";' | "${isql}" ${opts}
+          # Virtuoso 42000 Error SQ070:SECURITY: Must have select privileges on view DB.DBA.SPARQL_SINV_2
           echo 'GRANT SELECT ON "DB.DBA.SPARQL_SINV_2" TO "SPARQL";' | "${isql}" ${opts}
-	  # Virtuoso 42000 Error SR186:SECURITY: No permission to execute procedure DB.DBA.SPARQL_SINV_IMP with user ID 107, group ID 107
+          # Virtuoso 42000 Error SR186:SECURITY: No permission to execute procedure DB.DBA.SPARQL_SINV_IMP with user ID 107, group ID 107
           echo 'GRANT EXECUTE ON "DB.DBA.SPARQL_SINV_IMP" TO "SPARQL";' | "${isql}" ${opts}
-	  # Virtuoso 37000 Error SP031: SPARQL compiler: SERVICE <http://example.org/sparql> at line ?? does not support SPARQL-BI extensions (like expressions in result set) so SPARQL query can not be composed
+          # Virtuoso 37000 Error SP031: SPARQL compiler: SERVICE <http://example.org/sparql> at line ?? does not support SPARQL-BI extensions (like expressions in result set) so SPARQL query can not be composed
           # * This can be happen, e.g. by using BIND in the SERVICE query. (solution awaited)
         else
           echo "Aborted."
