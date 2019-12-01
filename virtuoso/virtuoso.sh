@@ -12,7 +12,7 @@
 #
 #       To change the default values, export the following environmental
 #       variables or create an user config file (default: ~/.virtuosorc)
-#       and override the values.
+#       to override.
 #
 #         VIRTUOSO_PORT="1111"
 #         VIRTUOSO_USER="dba"
@@ -38,11 +38,11 @@
 #
 #    Options for binary packages
 #
-#       Binary packages can be downloaded downloaded from
+#       Binary packages can be downloaded from
 #
 #         https://github.com/openlink/virtuoso-opensource/releases
 #
-#       and following options are available (as of release v7.2.5.1).
+#       and following platforms are supported (as of release v7.2.5.1).
 #
 #         Linux:
 #           virtuoso-opensource.x86_64-generic_glibc25-linux-gnu.tar.gz
@@ -94,7 +94,6 @@ prefix=${VIRTUOSO_PREFIX:-/opt/virtuoso}
 dbdir=${VIRTUOSO_DBDIR:-${prefix}/var/lib/virtuoso/db}
 dbfile=${VIRTUOSO_DBFILE:-virtuoso}
 suffix=${VIRTUOSO_SUFFIX}
-
 
 isql="${prefix}/bin/isql${suffix}"
 opts="${port} ${user} ${pass}"
