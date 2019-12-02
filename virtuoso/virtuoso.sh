@@ -200,10 +200,13 @@ case $1 in
         ;;
     loaddir)
         echo "
+          DB.DBA.VT_BATCH_UPDATE ('DB.DBA.RDF_OBJ', 'ON', NULL);
           log_enable(2,1);
           ld_dir_all('$3', '$4', '$2');
           rdf_loader_run();
           checkpoint;
+          DB.DBA.RDF_OBJ_FT_RULE_ADD (null, null, 'All');
+          DB.DBA.VT_INC_INDEX_DB_DBA_RDF_OBJ ();
         " | "${isql}" ${opts}
         ;;
     addloader)
