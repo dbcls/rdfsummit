@@ -148,9 +148,8 @@ case $1 in
         read -p "Enable CORS to all domains (recommended for all SPARQL endpoints). Continue? (Yes/No): " answer
         if [ "${answer:-No}" = "Yes" ]; then
           echo "
-            DB.DBA.VHOST_DEFINE (lpath=>'/sparql_1', ppath=>'/!sparql/', opts=>vector('cors','*'));
-            UPDATE http_path SET HP_OPTIONS = (SELECT HP_OPTIONS FROM http_path WHERE HP_LPATH='/sparql_1') WHERE HP_LPATH='/sparql';
-            DB.DBA.VHOST_REMOVE (lpath=>'/sparql_1');
+            DB.DBA.VHOST_REMOVE (lpath=>'/sparql');
+            DB.DBA.VHOST_DEFINE (lpath=>'/sparql', ppath=>'/!sparql/', is_dav=>1, vsp_user=>'dba', opts=>vector('cors', '*', 'browse_sheet', '', 'noinherit', 'yes'));
           " | "${isql}" ${opts}
         else
           echo "Aborted."
