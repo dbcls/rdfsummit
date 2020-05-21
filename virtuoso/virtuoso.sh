@@ -188,6 +188,7 @@ case $1 in
           log_enable(2,1);
           DB.DBA.RDF_LOAD_RDFXML_MT(file_to_string_output('$3'), '', '$2');
           checkpoint;
+          DB.DBA.VT_INC_INDEX_DB_DBA_RDF_OBJ ();
         " | "${isql}" ${opts}
         ;;
     loadttl)
@@ -195,6 +196,7 @@ case $1 in
           log_enable(2,1);
           DB.DBA.TTLP_MT(file_to_string_output('$3'), '', '$2', 337);
           checkpoint;
+          DB.DBA.VT_INC_INDEX_DB_DBA_RDF_OBJ ();
         " | "${isql}" ${opts}
         ;;
     loaddir)
@@ -207,6 +209,9 @@ case $1 in
           DB.DBA.RDF_OBJ_FT_RULE_ADD (null, null, 'All');
           DB.DBA.VT_INC_INDEX_DB_DBA_RDF_OBJ ();
         " | "${isql}" ${opts}
+        ;;
+    readonly)
+        echo "checkpoint_interval (0);" | "${isql}" ${opts} &
         ;;
     addloader)
         echo "rdf_loader_run();" | "${isql}" ${opts} &
@@ -313,6 +318,8 @@ case $1 in
         echo "    $0 loadttl 'http://example.org/graph_uri' /path/to/file.ttl"
         echo "    $0 loaddir 'http://example.org/graph_uri' /path/to/directory glob_pattern"
         echo "      (where glob_pattern can be something like '*.ttl' or '*.rdf')"
+        echo "  Make virtuoso.db readonly"
+        echo "    $0 readonly"
         echo "  Count remaining files to be loaded"
         echo "    $0 watch"
         echo "  List file names to be loaded, being loaded, and finished loading"
@@ -341,6 +348,7 @@ case $1 in
         echo "$0 help"
         echo "$0 {start|stop|status|isql|port|path|dir|log|edit|password|enable_cors|enable_service|delete}"
         echo "$0 {loadrdf|loadttl} 'http://example.org/graph_uri' /path/to/file"
+        echo "$0 {readonly}"
         echo "$0 {loaddir} 'http://example.org/graph_uri' /path/to/directory '*.(ttl|rdf|owl)'"
         echo "$0 {addloader|watch|watch_wait|watch_load|watch_done|watch_error}"
         echo "$0 {list|head|drop} [graph_uri]"
