@@ -186,27 +186,32 @@ case $1 in
     loadrdf)
         echo "
           log_enable(2,1);
+          DB.DBA.RDF_OBJ_FT_RULE_DEL (null, null, 'ALL');
           DB.DBA.RDF_LOAD_RDFXML_MT(file_to_string_output('$3'), '', '$2');
           checkpoint;
-          DB.DBA.VT_INC_INDEX_DB_DBA_RDF_OBJ ();
         " | "${isql}" ${opts}
         ;;
     loadttl)
         echo "
           log_enable(2,1);
+          DB.DBA.RDF_OBJ_FT_RULE_DEL (null, null, 'ALL');
           DB.DBA.TTLP_MT(file_to_string_output('$3'), '', '$2', 337);
           checkpoint;
-          DB.DBA.VT_INC_INDEX_DB_DBA_RDF_OBJ ();
         " | "${isql}" ${opts}
         ;;
     loaddir)
         echo "
           DB.DBA.VT_BATCH_UPDATE ('DB.DBA.RDF_OBJ', 'ON', NULL);
           log_enable(2,1);
+          DB.DBA.RDF_OBJ_FT_RULE_DEL (null, null, 'ALL');
           ld_dir_all('$3', '$4', '$2');
           rdf_loader_run();
           checkpoint;
-          DB.DBA.RDF_OBJ_FT_RULE_ADD (null, null, 'All');
+        " | "${isql}" ${opts}
+        ;;
+    textindex)
+        echo "
+          DB.DBA.RDF_OBJ_FT_RULE_ADD (null, null, 'ALL');
           DB.DBA.VT_INC_INDEX_DB_DBA_RDF_OBJ ();
         " | "${isql}" ${opts}
         ;;
@@ -310,11 +315,13 @@ case $1 in
         echo "  Delete entire data (except for a config file)"
         echo "    $0 delete"
         echo
-        echo "  Load RDF files"
+        echo "  Load RDF files (without text index)"
         echo "    $0 loadrdf 'http://example.org/graph_uri' /path/to/file.rdf"
         echo "    $0 loadttl 'http://example.org/graph_uri' /path/to/file.ttl"
         echo "    $0 loaddir 'http://example.org/graph_uri' /path/to/directory glob_pattern"
         echo "      (where glob_pattern can be something like '*.ttl' or '*.rdf')"
+        echo "  Force create text index"
+        echo "    $0 textindex"
         echo "  Count remaining files to be loaded"
         echo "    $0 watch"
         echo "  List file names to be loaded, being loaded, and finished loading"
@@ -344,6 +351,7 @@ case $1 in
         echo "$0 {start|stop|status|isql|port|path|dir|log|edit|password|enable_cors|enable_service|delete}"
         echo "$0 {loadrdf|loadttl} 'http://example.org/graph_uri' /path/to/file"
         echo "$0 {loaddir} 'http://example.org/graph_uri' /path/to/directory '*.(ttl|rdf|owl)'"
+        echo "$0 {textindex}"
         echo "$0 {addloader|watch|watch_wait|watch_load|watch_done|watch_error}"
         echo "$0 {list|head|drop} [graph_uri]"
         echo "$0 query 'select * where {?your ?sparql ?query.} limit 100'"
