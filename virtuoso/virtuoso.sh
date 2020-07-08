@@ -333,7 +333,7 @@ case $1 in
         echo "    $0 watch_done"
         echo "  List file names with loading errors"
         echo "    $0 watch_error"
-        echo "  Number of remaining data for text index"
+        echo "  Number of remaining data for text index (finished if 0)"
         echo "    $0 watch_textindex"
         echo "  Add an extra loading process"
         echo "    $0 addloader"
@@ -356,8 +356,8 @@ case $1 in
         echo "$0 {start|stop|status|isql|port|path|dir|log|edit|password|enable_cors|enable_service|delete}"
         echo "$0 {loadrdf|loadttl} 'http://example.org/graph_uri' /path/to/file"
         echo "$0 {loaddir} 'http://example.org/graph_uri' /path/to/directory '*.(ttl|rdf|owl)'"
-        echo "$0 {textindex|watch_textindex}"
         echo "$0 {addloader|watch|watch_wait|watch_load|watch_done|watch_error}"
+        echo "$0 {textindex|watch_textindex}"
         echo "$0 {list|head|drop} [graph_uri]"
         echo "$0 query 'select * where {?your ?sparql ?query.} limit 100'"
         exit 2
