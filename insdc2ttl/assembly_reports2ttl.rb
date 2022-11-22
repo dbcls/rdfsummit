@@ -162,7 +162,7 @@ class AssemblyReports2RDF
 
       #@reports.first(5).each do |project|
       @reports.each do |project|
-        base_path = project['ftp_path'].sub('ftp://ftp.ncbi.nlm.nih.gov/', '')
+        base_path = project['ftp_path'].sub('https://ftp.ncbi.nlm.nih.gov/', '')
         #basename = File.basename(base_path)
         subject = "http://ddbj.nig.ac.jp/#{base_path}"
         @sequences =[]
@@ -345,6 +345,8 @@ class AssemblyReports2RDF
           f.puts "\tasm:pubmed_id\t#{quote(v)} ; #only prokaryotes"
        when 'relation_to_type_material'
           f.puts "\tasm:relation_to_type_material\t#{quote(v)} ;"
+       when 'asm_not_live_date'
+          f.puts "\tasm:asm_not_live_date\t#{quote(v)} ;"
        else
            f.puts "     when '#{k}'"
            warn "undefied key: #{k}"
