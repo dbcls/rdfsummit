@@ -3,6 +3,9 @@
 # convert assembly_reprots to RDF
 # * ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_refseq.txt
 #
+# [w3sw@t262 cron]$ vi ~/tf/rdfsummit/insdc2ttl/assembly_reports2ttl.rb
+# ruby ~/tf/rdfsummit/insdc2ttl/assembly_reports2ttl.rb ~/rdf/linksets/data ~/rdf/linksets/rdf
+
 
 #["assembly_accession", "GCF_000001215.2"]
 #["bioproject", "PRJNA164"]
@@ -23,92 +26,169 @@
 #["submitter", "The FlyBase Consortium/Berkeley Drosophila Genome Project/Celera Genomics"]
 #["gbrs_paired_asm", "GCA_000001215.2"]
 #["paired_asm_comp", "different"]
-#
 
+require "fileutils"
+require 'pp'
 
 class AssemblyReports2RDF
-  ASSEMBLY_ROOT = "ASSEMBLY_REPORTS"
-  REPORT_FILES = "assembly_summary_refseq.txt"
 
   attr_accessor :status
 
-  def initialize(report_dir)
+  def initialize input,output 
+    @root_path = input 
+    @out_path  = output
     @status = Hash.new{|h,k|h[k]=0}
-    @reports =[] 
-    @assembly_dir = report_dir + "/#{ASSEMBLY_ROOT}"
-    @report_file = @assembly_dir + "/#{REPORT_FILES}"
-    if !File.exist?(@report_file)
-      puts "File not found. (#{@report_file})"
-      exit(1)
+    #output_prefix f
+    @paths =[]
+    datasets.each do |key, dataset|
+      @source = dataset[:source]
+      @idtype = dataset[:idtype]
+      @reports =[]
+      @out_summary=dataset[:outpath]
+      parse_summary "#{@root_path}/#{dataset[:path]}"
+      output_summary
     end
-    parse_reports
-    output_prefix
-    output_project
-  end 
+    @paths.each do |path|
+       #puts path
+       output_each_assembly path
+    end
+  end
 
-  def parse_reports
+  def datasets
+     {:insdc =>
+         { name: 'INSDC',
+           path: 'genomes/ASSEMBLY_REPORTS/assembly_summary_genbank.txt',
+           outpath: 'genomes/ASSEMBLY_REPORTS/assembly_summary_genbank.ttl',
+           source: 'assembly_summary_genbank.txt',
+           idtype: 'insdc'
+         },
+      :refseq =>
+         { name: 'RefSeq',
+           path: 'genomes/ASSEMBLY_REPORTS/assembly_summary_refseq.txt',
+           outpath: 'genomes/ASSEMBLY_REPORTS/assembly_summary_refseq.ttl',
+           source: 'assembly_summary_refseq.txt',
+           idtype: 'refseq'
+         }
+     }
+  end
+
+  def parse_summary file_path 
     head = []
-    File.readlines(@report_file).each_with_index do |line,i|
-      if i == 0
-        head = line.strip.gsub("\r","").gsub(/^#/,"").strip.split("\t")
+    File.readlines("#{file_path}",:encoding =>'UTF-8').each_with_index do |line,i|
+      if i == 0  # description row
+      elsif i == 1
+        head =line.strip.gsub("\r","").gsub(/^#/,"").strip.split("\t")
       else
         @reports << head.zip(line.strip.split("\t")).inject({}){|h,col| h[col[0]]=col[1];h}
       end
     end
   end
 
-  def output_assembly_reports id
-      File.readlines("#{@assembly_dir}/All/#{id}.assembly.txt").each_with_index do |line,i|
-         next if line =~/^#/
-         # Sequence-Name Sequence-Role   Assigned-Molecule       Assigned-Molecule-Location/Type GenBank-Accn    Relationship    RefSeq-Accn     Assembly-Unit
-         sequence_name, sequence_role, assigned_molecule, assigned_molecule_location_type, genbank_accession, relationship, refseq_accession, assembly_unit =  line.strip.split("\t")
-         puts "\tasm:sequence\t["
-         puts "\t\tasm:sequence_name\t#{quote(sequence_name)} ;"
-         puts "\t\tasm:sequence_role\t#{quote(sequence_role)} ;"
-         puts "\t\tasm:assigned_molecule\t#{quote(assigned_molecule)} ;"
-         puts "\t\tasm:assigned_molecule_location_type\t#{quote(assigned_molecule_location_type)} ;"
-         puts "\t\tasm:genbank_accession\t#{quote(genbank_accession)} ;"
-         puts "\t\tasm:genbank\t<http://identifiers.org/insdc/#{genbank_accession}> ;"
-         puts "\t\tasm:relationship\t#{quote(relationship)} ;"
-         puts "\t\tasm:refseq_accession\t#{quote(refseq_accession)} ;"
-         puts "\t\tasm:refseq\t<http://identifiers.org/refseq/#{refseq_accession}> ;"
-         puts "\t\tasm:assembly_unit\t#{quote(assembly_unit)} ] ;"
+  def output_each_assembly base_path
+    # base_path = project['ftp_path'].sub('ftp://ftp.ncbi.nlm.nih.gov/', '')
+    basename = File.basename(base_path)
+    subject = "http://ddbj.nig.ac.jp/#{base_path}"
+    stats_filepath = "#{@root_path}/#{base_path}/#{basename}_assembly_stats.txt"
+    report_filepath ="#{@root_path}/#{base_path}/#{basename}_assembly_report.txt"
+    if FileTest.exist?(report_filepath) and FileTest.exist?(stats_filepath) 
+      #out_file = "#{@out_path}/#{base_path}/#{basename}.ttl"
+      out_dir  = "#{@out_path}/#{File.dirname(base_path)}"
+      FileUtils.mkdir_p(out_dir) unless FileTest.exist?(out_dir)
+      out_file = "#{@out_path}/#{base_path}.ttl"
+      puts out_file
 
-         @status[assigned_molecule_location_type] += 1
+      File.open(out_file,"w") do |f|
+        f.puts output_prefix_common
+        f.puts
+        f.puts "<#{subject}>"
+        File.readlines(stats_filepath, :encoding =>'UTF-8').each_with_index do |line,i|
+          next if line =~/^#/
+          unit_name, molecule_name, molecule_type_loc, sequence_type, statistic, value = line.strip.split("\t")
+          if unit_name == 'all' and molecule_name == 'all' and  molecule_type_loc == 'all' and sequence_type == 'all'
+            #pp [statistic, value]
+            f.puts "\t\tasm:#{statistic}\t#{value} ;"
+          end
+        end
+
+        File.readlines(report_filepath, :encoding =>'UTF-8').each_with_index do |line,i|
+          next if line =~/^#/
+          # Sequence-Name Sequence-Role   Assigned-Molecule       Assigned-Molecule-Location/Type GenBank-Accn    Relationship    RefSeq-Accn     Assembly-Unit
+          sequence_name, sequence_role, assigned_molecule, assigned_molecule_location_type, genbank_accession, relationship, refseq_accession, assembly_unit =  line.strip.split("\t")
+          f.puts "\t\tasm:sequence\t["
+          f.puts "\t\tasm:sequence_name\t#{quote(sequence_name)} ;"
+          f.puts "\t\tasm:sequence_role\t#{quote(sequence_role)} ;"
+          f.puts "\t\tasm:assigned_molecule\t#{quote(assigned_molecule)} ;"
+          f.puts "\t\tasm:assigned_molecule_location_type\t#{quote(assigned_molecule_location_type)} ;"
+          f.puts "\t\tasm:genbank_accession\t#{quote(genbank_accession)} ;"
+          f.puts "\t\tasm:genbank\t<http://identifiers.org/insdc/#{genbank_accession}> ;"
+          f.puts "\t\tasm:relationship\t#{quote(relationship)} ;"
+          f.puts "\t\tasm:refseq_accession\t#{quote(refseq_accession)} ;"
+          f.puts "\t\tasm:refseq\t<http://identifiers.org/refseq/#{refseq_accession}> ;"
+          f.puts "\t\tasm:assembly_unit\t#{quote(assembly_unit)} ] ;"
+          @status[assigned_molecule_location_type] += 1
+        end
+        f.puts "."
       end
+    end
   end
 
   def quote(str)
-      return str.to_s.gsub('\\', '\\\\').gsub("\t", '\\t').gsub("\n", '\\n').gsub("\r", '\\r').gsub('"', '\\"').inspect
+      return str.to_s.gsub(/(\\|\t|\n|\r|")/, '\\' => '\\\\', "\t" => '\\t', "\n" => '\\n', "\r" => '\\r', '"' => '\\"').inspect
   end
-  
-  def output_prefix
-      puts "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> ."
-      puts "@prefix obo: <http://purl.obolibrary.org/obo/> ."
-      puts "@prefix asm: <http://www.ncbi.nlm.nih.gov/assembly/> ."
-      puts
-      puts
+
+  def output_prefix_common
+      "@prefix asm: <http://ddbj.nig.ac.jp/ontologies/assembly/> ."
   end
-  
-  def output_project
-    @reports.each do |project|
-    #@reports.first(5).each do |project|
-         @sequences =[] 
-         acc = project["BioProject Accession"] || project["bioproject"]
-         @project_uri = "http://identifiers.org/bioproject/#{acc}"
-         #puts "<#{@project_uri}>"
-         puts "["
-         project.each do |k,v|
-             output_pv(k,v)
-         end 
-         puts "\trdfs:seeAlso\t<http://www.ncbi.nlm.nih.gov/assembly/#{project['assembly_accession']}> ;"
-         output_assembly_reports project['assembly_accession']
-         puts "]"
-         puts "." 
-         puts 
-         #output_sequences # for genome_reports
-         @status[project["Status"]] += 1
-    end 
+
+  def output_prefix f
+      f.puts output_prefix_common
+      f.puts "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ."
+      f.puts "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> ."
+      #puts "@prefix obo: <http://purl.obolibrary.org/obo/> ."
+      f.puts "@prefix sio: <http://semanticscience.org/resource/> ."
+      f.puts
+      f.puts
+  end
+
+  def output_summary
+    #@reports.each do |project| 
+    out_file = "#{@out_path}/#{@out_summary}"
+    out_dir  = File.dirname(out_file)
+    FileUtils.mkdir_p(out_dir) unless FileTest.exist?(out_dir)
+    puts out_file
+
+    File.open(out_file,"w") do |f|
+      output_prefix f
+
+      #@reports.first(5).each do |project|
+      @reports.each do |project|
+        base_path = project['ftp_path'].sub('https://ftp.ncbi.nlm.nih.gov/', '')
+        #basename = File.basename(base_path)
+        subject = "http://ddbj.nig.ac.jp/#{base_path}"
+        @sequences =[]
+        acc = project["BioProject Accession"] || project["bioproject"]
+        @project_uri = "http://identifiers.org/bioproject/#{acc}"
+        f.puts "<#{subject}>"
+        f.puts "\trdf:type\tasm:Assembly_Database_Entry ;"
+        #puts "\tsio:SIO_000068\t<http://identifiers.org/#{@idtype}> ;" # sio:is-part-of
+        f.puts "\trdf:type\t<http://identifiers.org/#{@idtype}> ;" # sio:is-part-of
+        f.puts "\tasm:wasDerivedFrom \"#{@source}\" ;" # prov:wasDerivedFrom
+        # sio:SIO_000068  <http://identifiers.org/ncbigi>
+        project.each do |k,v|
+          output_pv(k,v,f)
+        end
+        #puts "\trdfs:seeAlso\t<http://www.ncbi.nlm.nih.gov/assembly/#{project[' assembly_accession']}> ;"
+        f.puts "\trdfs:seeAlso\tasm:#{project['assembly_accession']} ."
+        f.puts
+        #puts "\trdfs:seeAlso\tftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/All/#{project[' assembly_accession']}.assembly.txt ;"
+
+        @paths.push(base_path)
+        #output_each_assembly base_path
+
+        #output_sequences # for genome_reports
+        @status[project["Status"]] += 1
+      end
+    end
   end
 
   def output_sequences
@@ -158,119 +238,124 @@ class AssemblyReports2RDF
         end
       end
   end
-  
-  def output_pv k,v
+
+  def output_pv k,v,f
       #p [k,v]
        case k
        ### assembly_reports
-       when 'assembly_accession'
-           puts "\tasm:assembly_accession\t#{quote(v)} ;" 
+       when 'assembly_id', 'assembly_accession'
+           f.puts "\tasm:assembly_id\t#{quote(v)} ;"
        #when 'bioproject'
        #when 'biosample'
        when 'wgs_master'
-          puts "\tasm:wgs_master\t#{quote(v)} ;"
+          f.puts "\tasm:wgs_master\t#{quote(v)} ;"
        when 'refseq_category'
-           puts "\tasm:refseq_category\t#{quote(v)} ;"
+           f.puts "\tasm:refseq_category\t#{quote(v)} ;"
        #when 'organism_name'
        #when 'tax_id'
-       when 'species_taxid'    
-           puts "\tasm:species_taxid\t#{quote(v)} ;"
+       when 'species_taxid'
+           f.puts "\tasm:species_taxid\t#{quote(v)} ;"
        when 'infraspecific_name'
-           puts "\tasm:infraspecific_name\t#{quote(v)} ;"
+           f.puts "\tasm:infraspecific_name\t#{quote(v)} ;"
        when 'isolate'
-           puts "\tasm:isolate\t#{quote(v)} ;"
+           f.puts "\tasm:isolate\t#{quote(v)} ;"
        when 'version_status'
-           puts "\tasm:version_status\t#{quote(v)} ;"
-       when 'assembly_level'    
-           puts "\tasm:assembly_level\t#{quote(v)} ;"
+           f.puts "\tasm:version_status\t#{quote(v)} ;"
+       when 'assembly_level'
+           f.puts "\tasm:assembly_level\t#{quote(v)} ;"
        when 'release_type'
-           puts "\tasm:release_type\t#{quote(v)} ;"
-       when 'genome_rep'    
-           puts "\tasm:genome_rep\t#{quote(v)} ;"
+           f.puts "\tasm:release_type\t#{quote(v)} ;"
+       when 'genome_rep'
+           f.puts "\tasm:genome_rep\t#{quote(v)} ;"
        #when 'seq_rel_date'
        when 'asm_name'
-           puts "\tasm:asm_name\t#{quote(v)} ;"
+           f.puts "\tasm:asm_name\t#{quote(v)} ;"
        when 'submitter'
-           puts "\tasm:submitter\t#{quote(v)} ;"
-       when 'gbrs_paired_asm'  
-           puts "\tasm:gbrs_paired_asm\t#{quote(v)} ;"
-       when 'paired_asm_comp'    
-           puts "\tasm:paired_asm_comp\t#{quote(v)} ;"
-       ### genome_reports    
-       when 'Organism/Name', 'organism_name'    
-          puts "\tasm:organism_name\t#{quote(v)} ;" 
+           f.puts "\tasm:submitter\t#{quote(v)} ;"
+       when 'gbrs_paired_asm'
+           f.puts "\tasm:gbrs_paired_asm\t#{quote(v)} ;"
+       when 'paired_asm_comp'
+           f.puts "\tasm:paired_asm_comp\t#{quote(v)} ;"
+       ### genome_reports
+       when 'Organism/Name', 'organism_name'
+           f.puts "\tasm:organism_name\t#{quote(v)} ;" 
        when 'TaxID','taxid'
-          puts "\tasm:tax_id\t#{quote(v)} ;" 
-          puts "\tasm:taxon\t<http://identifiers.org/taxonomy/#{v}> ;" if v !='-'
+          f.puts "\tasm:tax_id\t#{quote(v)} ;"
+          f.puts "\tasm:taxon\t<http://identifiers.org/taxonomy/#{v}> ;" if v !='-'
        when 'BioProject Accession','bioproject'
-          puts "\tasm:bioproject_accession\t#{quote(v)} ;" 
-          puts "\tasm:bioproject\t<http://identifiers.org/bioproject/#{v}> ;" 
+          f.puts "\tasm:bioproject_accession\t#{quote(v)} ;"
+          f.puts "\tasm:bioproject\t<http://identifiers.org/bioproject/#{v}> ;"
        when 'BioProject ID'
-          puts "\tasm:bioproject_id\t#{quote(v)} ;" 
+          f.puts "\tasm:bioproject_id\t#{quote(v)} ;"
        when 'Group'
-          puts "\tasm:group\t#{quote(v)} ;" 
+          f.puts "\tasm:group\t#{quote(v)} ;"
        when 'SubGroup'
-          puts "\tasm:subgroup\t#{quote(v)} ;" 
+          f.puts "\tasm:subgroup\t#{quote(v)} ;"
        when 'Size (Mb)'
-          puts "\tasm:size\t#{quote(v)} ;" 
+          f.puts "\tasm:size\t#{quote(v)} ;"
        when 'GC%'
-          puts "\tasm:gc\t#{quote(v)} ;" 
+          f.puts "\tasm:gc\t#{quote(v)} ;"
        when 'Assembly Accession'
-          puts "\t_asm:assembly_accession\t#{quote(v)} ;" 
+          f.puts "\t_asm:assembly_accession\t#{quote(v)} ;"
        when 'Chromosomes'
-          puts "\tasm:chromosomes\t#{quote(v)} ;" 
+          f.puts "\tasm:chromosomes\t#{quote(v)} ;"
        when 'Organelles'
-          puts "\tasm:organelles\t#{quote(v)} ;" 
+          f.puts "\tasm:organelles\t#{quote(v)} ;"
        when 'Plasmids'
-          puts "\tasm:plasmids\t#{quote(v)} ;" 
+          f.puts "\tasm:plasmids\t#{quote(v)} ;"
        when 'WGS'
-          puts "\tasm:wgs\t#{quote(v)} ;" 
+          f.puts "\tasm:wgs\t#{quote(v)} ;"
        when 'Scaffolds'
-          puts "\tasm:scaffolds\t#{quote(v)} ;" 
+          f.puts "\tasm:scaffolds\t#{quote(v)} ;"
        when 'Genes'
-          puts "\tasm:genes\t#{quote(v)} ;" 
+          f.puts "\tasm:genes\t#{quote(v)} ;"
        when 'Proteins'
-          puts "\tasm:proteins\t#{quote(v)} ;" 
+          f.puts "\tasm:proteins\t#{quote(v)} ;"
        when 'Release Date', 'seq_rel_date'
-          puts "\tasm:release_date\t#{quote(v)} ;"
+          f.puts "\tasm:release_date\t#{quote(v)} ;"
        when 'Modify Date'
-          puts "\tasm:modify_date\t#{quote(v)} ;"
+          f.puts "\tasm:modify_date\t#{quote(v)} ;"
        when 'Status'
-          puts "\tasm:status\t#{quote(v)} ;" 
+          f.puts "\tasm:status\t#{quote(v)} ;"
           #puts "\t:status2so\t#{term2so(v)} ;"
        when 'Center'
-          puts "\tasm:center\t#{quote(v)} ;" 
+          f.puts "\tasm:center\t#{quote(v)} ;"
        when 'BioSample Accession','biosample'
-          puts "\tasm:biosample_accession\t#{quote(v)} ;" 
-          puts "\tasm:biosample\t<http://identifiers.org/biosample/#{v}> ;" if (v != '-' and  v != 'na')
+          f.puts "\tasm:biosample_accession\t#{quote(v)} ;"
+          f.puts "\tasm:biosample\t<http://identifiers.org/biosample/#{v}> ;" if (v != '-' and  v != 'na' and v != '')
        when 'Chromosomes/RefSeq'
-          puts "\tasm:chromosomes_refseq\t#{quote(v)} ; #only prokaryotes" 
+          f.puts "\tasm:chromosomes_refseq\t#{quote(v)} ; #only prokaryotes"
           resource_sequence(v,k)
           #v.split(",").each { |vv| puts "\t:chromosome\t<http://identifiers.org/refseq/#{vv}> ;"} if v != '-'
        when 'Chromosomes/INSDC'
-          puts "\tasm:chromosomes_insdc\t#{quote(v)} ; #only prokaryotes" 
+          f.puts "\tasm:chromosomes_insdc\t#{quote(v)} ; #only prokaryotes"
        when 'Plasmids/RefSeq'
-          puts "\tasm:plasmids_refseq\t#{quote(v)} ; #only prokaryotes" 
+          f.puts "\tasm:plasmids_refseq\t#{quote(v)} ; #only prokaryotes"
           resource_sequence(v,k)
           #v.split(",").each { |vv| puts "\t:plasmid\t<http://identifiers.org/refseq/#{vv}> ;"} if v != '-'
        when 'Plasmids/INSDC'
-          puts "\tasm:plasmids_insdc\t#{quote(v)} ; #only prokaryotes" 
+          f.puts "\tasm:plasmids_insdc\t#{quote(v)} ; #only prokaryotes"
        when 'Reference'
-          puts "\tasm:reference\t#{quote(v)}; #only prokaryotes" 
-       when 'FTP Path'
-          puts "\tasm:ftp_path\t#{quote(v)}; #only prokaryotes" 
+          f.puts "\tasm:reference\t#{quote(v)}; #only prokaryotes"
+       when 'FTP Path' , 'ftp_path'
+          f.puts "\tasm:ftp_path\t#{quote(v)}; #only prokaryotes"
+       when 'excluded_from_refseq'
+          f.puts "\tasm:excluded_from_refseq\t#{quote(v)} ;"
        when 'Pubmed ID'
-          puts "\tasm:pubmed_id\t#{quote(v)} ; #only prokaryotes" 
+          f.puts "\tasm:pubmed_id\t#{quote(v)} ; #only prokaryotes"
+       when 'relation_to_type_material'
+          f.puts "\tasm:relation_to_type_material\t#{quote(v)} ;"
+       when 'asm_not_live_date'
+          f.puts "\tasm:asm_not_live_date\t#{quote(v)} ;"
        else
-           puts "     when '#{k}'"
+           f.puts "     when '#{k}'"
            warn "undefied key: #{k}"
            raise error
        end
   end
 end
 
-if ARGV.size < 1
-  $stderr.puts "Usage: assembly_reports2ttl.rb reportDir"
-  exit(1)
-end
-AssemblyReports2RDF.new(ARGV[0])
+input = ARGV.shift
+output= ARGV.shift
+
+AssemblyReports2RDF.new(input,output)
