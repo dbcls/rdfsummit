@@ -293,7 +293,7 @@ class AssemblyReports2RDF
           f.puts "\tasm:subgroup\t#{quote(v)} ;"
        when 'Size (Mb)'
           f.puts "\tasm:size\t#{quote(v)} ;"
-       when 'GC%'
+       when 'GC%', 'gc_percent'
           f.puts "\tasm:gc\t#{quote(v)} ;"
        when 'Assembly Accession'
           f.puts "\t_asm:assembly_accession\t#{quote(v)} ;"
@@ -341,12 +341,40 @@ class AssemblyReports2RDF
           f.puts "\tasm:ftp_path\t#{quote(v)}; #only prokaryotes"
        when 'excluded_from_refseq'
           f.puts "\tasm:excluded_from_refseq\t#{quote(v)} ;"
-       when 'Pubmed ID'
+       when 'Pubmed ID', 'pubmed_id'
           f.puts "\tasm:pubmed_id\t#{quote(v)} ; #only prokaryotes"
        when 'relation_to_type_material'
           f.puts "\tasm:relation_to_type_material\t#{quote(v)} ;"
        when 'asm_not_live_date'
           f.puts "\tasm:asm_not_live_date\t#{quote(v)} ;"
+       when 'asm_submitter'
+          f.puts "\tasm:asm_submitter\t#{quote(v)} ;"
+       when 'assembly_type'
+          f.puts "\tasm:assembly_type\t#{quote(v)} ;"
+       when 'group'
+          f.puts "\tasm:group\t#{quote(v)} ;"
+       when 'genome_size'
+          f.puts "\tasm:genome_size\t#{quote(v)} ;"
+       when 'genome_size_ungapped'
+          f.puts "\tasm:genome_size_ungapped\t#{quote(v)} ;"
+       when 'replicon_count'
+          f.puts "\tasm:replicon_count\t#{quote(v)} ;"
+       when 'scaffold_count'
+          f.puts "\tasm:scaffold_count\t#{quote(v)} ;"
+       when 'contig_count'
+          f.puts "\tasm:contig_count\t#{quote(v)} ;"
+       when 'annotation_provider'
+          f.puts "\tasm:annotation_provider\t#{quote(v)} ;"
+       when 'annotation_name'
+          f.puts "\tasm:annotation_name\t#{quote(v)} ;"
+       when 'annotation_date'
+          f.puts "\tasm:annotation_date\t#{quote(v)} ;"
+       when 'total_gene_count'
+          f.puts "\tasm:total_gene_count\t#{quote(v)} ;"
+       when 'protein_coding_gene_count'
+          f.puts "\tasm:protein_coding_gene_count\t#{quote(v)} ;"
+       when 'non_coding_gene_count'
+          f.puts "\tasm:non_coding_gene_count\t#{quote(v)} ;"
        else
            f.puts "     when '#{k}'"
            warn "undefied key: #{k}"
