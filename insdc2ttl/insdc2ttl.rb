@@ -40,7 +40,7 @@ module RDFSupport
   end
 
   def quote(str)
-    return str.gsub('\\', '\\\\').gsub("\t", '\\t').gsub("\n", '\\n').gsub("\r", '\\r').gsub('"', '\\"').inspect
+    return str.gsub('\\', '\\\\').gsub("\t", '\\t').gsub("\n", '\\n').gsub("\r", '\\r').gsub('"', '\\"').inspect.gsub('\#', '#')
   end
 
   def triple(s, p, o)
